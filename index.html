@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>40秒陣亡：當Google第一名親手把後門遞給你</title>
+<meta name="description" content="macOS Claude Code SEO詐騙攻擊事件深度分析：SEO投毒、Claude分享連結遭冒用、Base64混淆安裝指令、macOS Keychain竊密的完整攻擊鏈拆解，附MITRE ATT&CK對應與vibe coding防護清單。">
+
+<!-- Open Graph / 社群分享預覽 -->
+<!-- 網址假設此頁最終以 GitHub Pages 預設網址發布：https://lushinshang.github.io/1150711_Fake_URL/ -->
+<!-- 若改用自訂網域或未啟用 GitHub Pages，請把以下 4 個絕對網址換成實際網址 -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="資安事件深度分析">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:title" content="40秒陣亡：當Google第一名親手把後門遞給你">
+<meta property="og:description" content="macOS Claude Code SEO詐騙攻擊事件深度分析：SEO投毒、Claude分享連結遭冒用、Base64混淆安裝指令、macOS Keychain竊密的完整攻擊鏈拆解，附MITRE ATT&CK對應與vibe coding防護清單。">
+<meta property="og:url" content="https://lushinshang.github.io/1150711_Fake_URL/">
+<meta property="og:image" content="https://lushinshang.github.io/1150711_Fake_URL/index_images/summary-banner.png">
+<meta property="og:image:secure_url" content="https://lushinshang.github.io/1150711_Fake_URL/index_images/summary-banner.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1672">
+<meta property="og:image:height" content="941">
+<meta property="og:image:alt" content="macOS Claude Code SEO詐騙攻擊事件懶人包：六個關鍵環節一圖看懂">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="40秒陣亡：當Google第一名親手把後門遞給你">
+<meta name="twitter:description" content="macOS Claude Code SEO詐騙攻擊事件深度分析：SEO投毒、Claude分享連結遭冒用、Base64混淆安裝指令、macOS Keychain竊密的完整攻擊鏈拆解。">
+<meta name="twitter:image" content="https://lushinshang.github.io/1150711_Fake_URL/index_images/summary-banner.png">
+<meta name="twitter:image:alt" content="macOS Claude Code SEO詐騙攻擊事件懶人包：六個關鍵環節一圖看懂">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" integrity="sha384-eFTL69TLRZTkNfYZOLM+G04821K1qZao/4QLJbet1pP4tcF+fdXq/9CdqAbWRl/L" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" crossorigin="anonymous"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: {
+    primaryColor: '#fff3ee', primaryBorderColor: '#dd2334', primaryTextColor: '#1a1a1a',
+    lineColor: '#8d101b', fontFamily: '"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif'
+  }});
+</script>
+<style>
+  :root{
+    --bg: #f9f7f4;
+    --text: #1a1a1a;
+    --muted: #6b6b64;
+    --accent: #b3261e;
+    --accent-soft: #fff0ee;
+    --border: #e5e5e0;
+    --card-bg: #ffffff;
+    --code-bg: #f1efe8;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+    font-size:clamp(16px,0.4vw + 15px,17px);
+    line-height:1.72; letter-spacing:0; margin:0; padding:0;
+  }
+  .page{max-width:1120px; margin:0 auto; padding:0 24px;}
+  header.hero{max-width:1120px; margin:0 auto; padding:56px 24px 0;}
+  h1{
+    text-wrap:balance; font-weight:800; text-align:center;
+    font-size:clamp(1.9rem, 1.1rem + 2.6vw, 3.1rem);
+    line-height:1.28; margin:0 auto 20px; max-width:900px;
+    background:linear-gradient(92deg,#1a1a1a 55%,var(--accent) 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .kicker{
+    text-align:center; color:var(--accent); font-weight:700; letter-spacing:0.08em;
+    font-size:0.85rem; margin-bottom:14px; text-transform:uppercase;
+  }
+  h2{
+    text-wrap:balance; font-size:clamp(1.4rem,1.1rem + 1vw,1.9rem);
+    font-weight:800; margin:2.4em 0 0.7em; padding-bottom:0.4em;
+    border-bottom:2px solid var(--border);
+  }
+  h3{font-size:1.15rem; font-weight:700; margin:1.8em 0 0.6em;}
+  article{max-width:720px; margin:0 auto; padding:8px 24px 80px;}
+  p{margin:0 0 1.5em;}
+  a{color:var(--accent); text-decoration:none; word-break:break-word;}
+  a:hover{text-decoration:underline;}
+  strong{font-weight:700;}
+  ul,ol{margin:0 0 1.5em; padding-left:1.4em;}
+  li{margin-bottom:0.55em;}
+  code{
+    font-family:ui-monospace,Menlo,Consolas,Monaco,monospace; font-size:0.9em;
+    background:var(--code-bg); padding:2px 6px; border-radius:4px;
+  }
+
+  /* summary / TL;DR box */
+  .tldr{
+    max-width:720px; margin:32px auto 8px; padding:22px 26px;
+    background:var(--card-bg); border:1px solid var(--border); border-left:4px solid var(--accent);
+    border-radius:6px; box-shadow:0 2px 10px rgba(0,0,0,0.04);
+  }
+  .tldr p{margin:0; font-size:0.98em; line-height:1.68;}
+  .tldr .tldr-label{
+    display:inline-block; font-weight:800; color:var(--accent); font-size:0.78rem;
+    letter-spacing:0.08em; margin-bottom:10px; text-transform:uppercase;
+  }
+
+  /* summary infographic */
+  figure.summary-figure{margin:32px 0; padding:0 24px; text-align:center;}
+  figure.summary-figure img{
+    width:100%; max-width:640px; display:block; margin:0 auto; cursor:zoom-in;
+    border-radius:12px; aspect-ratio:16/9; object-fit:cover;
+    box-shadow:0 6px 24px rgba(0,0,0,0.10);
+  }
+  figure.summary-figure figcaption{
+    color:var(--muted); font-size:0.85rem; line-height:1.55; margin-top:10px;
+  }
+  @media (max-width:640px){
+    figure.summary-figure img{aspect-ratio:9/16; max-width:340px;}
+  }
+
+  /* nav */
+  nav.toc{
+    position:sticky; top:0; z-index:50; background:rgba(249,247,244,0.92);
+    backdrop-filter:blur(6px); border-bottom:1px solid var(--border);
+    height:56px; display:flex; align-items:center;
+  }
+  nav.toc .toc-row{
+    max-width:1120px; margin:0 auto; padding:0 24px; display:flex; gap:22px;
+    overflow-x:auto; white-space:nowrap; scrollbar-width:none;
+  }
+  nav.toc .toc-row::-webkit-scrollbar{display:none;}
+  nav.toc a{color:var(--text); font-size:0.86rem; font-weight:600; opacity:0.72;}
+  nav.toc a:hover{opacity:1; text-decoration:none; color:var(--accent);}
+
+  /* mermaid figures */
+  figure.diagram{margin:28px 0; text-align:center;}
+  .mermaid, .mermaid-rendered{
+    background:#ffffff; padding:20px; border-radius:10px;
+    box-shadow:0 4px 18px rgba(0,0,0,0.05); overflow-x:auto;
+    cursor:zoom-in;
+  }
+  .mermaid svg{max-width:100%; height:auto;}
+  .mermaid-rendered svg{max-width:100%; height:auto;}
+  figure.diagram figcaption{color:var(--muted); font-size:0.85rem; margin-top:8px; line-height:1.5;}
+
+  /* tables */
+  .table-wrap{overflow-x:auto; margin:24px 0;}
+  table{
+    width:100%; border-collapse:collapse; font-size:0.88rem; min-width:520px;
+    background:var(--card-bg); border-radius:8px; overflow:hidden;
+  }
+  th,td{border:1px solid var(--border); padding:10px 13px; text-align:left; vertical-align:top;}
+  th{background:var(--code-bg); font-weight:700; white-space:nowrap;}
+
+  hr{border:none; border-top:1px solid var(--border); margin:40px 0;}
+
+  /* conclusion callout */
+  .conclusion-box{
+    background:#fff; border:1px solid var(--border); border-left:4px solid var(--text);
+    border-radius:6px; padding:24px 26px; margin:20px 0;
+  }
+
+  /* reference links */
+  .ref-group{margin-bottom:1.8em;}
+  .ref-group h3{margin-top:0; font-size:1.02rem; color:var(--accent);}
+  .ref-group ul{padding-left:1.2em;}
+  .ref-group li{font-size:0.92rem; line-height:1.6; word-break:break-all;}
+  .ref-group li span{display:inline-block; word-break:keep-all; margin-right:4px;}
+  .unverified-badge{
+    display:inline-block; font-size:0.72em; font-weight:700; padding:1px 6px;
+    margin-left:4px; border-radius:4px; background:#fff3cd; color:#856404;
+    vertical-align:middle;
+  }
+  .ref-legend{color:var(--muted); font-size:0.82rem; margin:-6px 0 18px;}
+
+  footer.site-footer{
+    max-width:720px; margin:0 auto; padding:0 24px 60px; color:var(--muted); font-size:0.82rem;
+  }
+
+  /* lightbox */
+  .lightbox{
+    display:none; position:fixed; inset:0; z-index:200;
+    background:rgba(20,18,16,0.9); align-items:center; justify-content:center;
+    padding:24px; cursor:zoom-out;
+  }
+  .lightbox.is-open{display:flex;}
+  .lightbox-inner{
+    max-width:96vw; max-height:92vh; overflow:auto; cursor:default;
+    background:#ffffff; border-radius:10px; padding:28px;
+    box-shadow:0 12px 48px rgba(0,0,0,0.5);
+  }
+  .lightbox-inner img{max-width:100%; height:auto; display:block; margin:0 auto; border-radius:8px;}
+  .lightbox-inner svg{width:min(88vw,880px); height:auto; display:block; margin:0 auto;}
+  .lightbox .lightbox-hint{
+    position:absolute; top:20px; right:24px; color:rgba(255,255,255,0.75);
+    font-size:13px; background:rgba(0,0,0,0.4); padding:5px 12px; border-radius:16px;
+  }
+
+  @media (max-width:640px){
+    header.hero{padding:40px 20px 0;}
+    article{padding:8px 20px 60px;}
+    nav.toc .toc-row{gap:16px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="kicker">資安事件深度分析｜macOS ‧ Claude Code ‧ SEO 詐騙</div>
+  <h1>40秒陣亡：<br>當Google第一名親手把後門遞給你</h1>
+</header>
+
+<figure class="summary-figure">
+  <picture>
+    <source media="(max-width: 640px)" srcset="index_images/summary-banner-mobile.png">
+    <img src="index_images/summary-banner.png" alt="macOS Claude Code SEO詐騙攻擊事件懶人包：Google第一名不等於安全、SEO投毒與惡意廣告、Claude分享連結遭冒用、Base64混淆一鍵安裝指令、macOS Keychain遭竊、40秒斷網關機止血">
+  </picture>
+  <figcaption>一圖看懂整起事件的六個關鍵環節（點擊可放大）</figcaption>
+</figure>
+
+<nav class="toc">
+  <div class="toc-row">
+    <a href="#summary">摘要</a>
+    <a href="#incident">事件經過</a>
+    <a href="#trust-gap">信任死角</a>
+    <a href="#mechanism">攻擊機制</a>
+    <a href="#industry">產業鏈</a>
+    <a href="#defense">防護清單</a>
+    <a href="#conclusion">總結</a>
+    <a href="#links">參考連結</a>
+  </div>
+</nav>
+
+<article>
+
+  <div class="tldr" id="summary">
+    <span class="tldr-label">摘要</span>
+    <p>一台剛拆箱兩天的 MacBook Air M5，在敲下一行「官方網域」複製來的安裝指令後，四十秒內被攻陷。奇怪的是，那個網域完全真實，連防毒引擎當下都判定乾淨。真正被攻破的不是防火牆，而是「搜尋排名第一」與「網址看起來對」這兩件事在人心中建立起來的信任。這起案例背後，是一整條 2026 年上半年正在多國同步發生的攻擊產業鏈：SEO 投毒、Claude 與 ChatGPT 分享連結遭冒用、macOS Keychain 竊密軟體大量繁殖。本文拆解攻擊如何運作、對應到哪些國際資安框架、目前有哪些已知變種，並給出一份給重度依賴 AI 協作開發者（vibe coding 者）的具體防護清單。</p>
+  </div>
+
+  <h2 id="incident">兩天心血，四十秒歸零</h2>
+  <p>新機到貨的興奮感通常只夠維持幾天。把常用軟體一一裝好，最後只剩一項：Claude Code。順手打開瀏覽器，搜尋「claude code 安裝」，第一筆結果的網域寫著 <code>claude.ai</code>，一個每天都在用、閉著眼睛也會信任的名字。點進去，頁面排版正常，甚至還留著一行看起來像官方教學的安裝指令。複製，貼上終端機，按下 Enter。</p>
+  <p>沒有跳出警告，沒有防毒攔截，只有 macOS 的 Keychain 視窗一次又一次跳出來要密碼。那個瞬間，警覺神經才終於啟動——低頭一看網址列，那串字元是 Base64 編碼，不是正常的路徑。斷網、關機、進入 Recovery 模式抹除整顆磁碟，這一連串動作在四十秒內全部完成。</p>
+  <p>如果只看結果，這像是一次教科書等級的事件應變：快、狠、準。但真正值得深究的，是「為什麼一個資安意識足夠敏銳、平常也儘量不讓瀏覽器記住密碼的使用者，還是在防毒軟體毫無反應的情況下，把手伸向了那行指令」。答案跟技術漏洞無關，跟人心的信任機制有關。</p>
+
+  <h2 id="trust-gap">VirusTotal 為什麼測不出來</h2>
+  <p>把那段 Base64 解碼之後的網址送去 VirusTotal 檢測，結果是乾淨的。這不是防毒引擎失靈，而是攻擊者根本沒有偽造任何東西。</p>
+  <p>傳統的釣魚攻擊仰賴假網域：把 <code>claude.ai</code> 拼成 <code>claude-ai.co</code> 或 <code>ciaude.ai</code>，靠視覺相似度矇混。這類手法有天生的破綻——網域信譽資料庫看得到、瀏覽器警告攔得住、使用者只要多看一眼網址列就能識破。但這起事件裡，網址列上寫的貨真價實就是 <code>claude.ai</code>。攻擊者用的不是偽造，而是<strong>借用</strong>：把一段包著惡意安裝指令的對話，用 Claude 官方的分享連結（Share Link）功能發布出去。網域是真的，伺服器是官方的，SSL 憑證正確無誤，唯獨對話內容是攻擊者自己編寫的。</p>
+  <p>再往上一層看，這個分享連結能被搜尋到，靠的是 SEO 投毒（SEO Poisoning）與惡意廣告（Malvertising）——花錢買廣告或操作搜尋演算法，讓一個「看起來像官方安裝教學」的頁面擠進 Google 搜尋結果第一名，排在真正的官方文件前面。查證顯示，直到隔天，這個偽造頁面依然穩坐搜尋結果榜首。</p>
+  <p>這暴露出現行資安防護模型的一個結構性死角：幾乎所有信任判斷都建立在「網域是否合法」這個單一維度上，無論是使用者的直覺、瀏覽器的憑證檢查，還是威脅情報系統的網域黑名單。但當攻擊者不再需要偽造網域，而是直接寄生在合法服務的使用者生成內容（分享連結、共享對話、公開協作頁面）裡，這套以網域為核心的信任模型就出現了系統性破口。2026 年上半年，多家獨立威脅情報廠商，分別記錄到幾乎相同的手法被用來冒充 Claude Code 與 ChatGPT 的分享頁面——這不是單一事件，而是一種被驗證有效、正在擴散的攻擊模式。</p>
+
+  <h2 id="mechanism">一條指令背後的三段式劫持</h2>
+  <p>把整起事件攤開來看，其實是三個階段緊密咬合的鏈條。</p>
+
+  <figure class="diagram">
+    <div class="mermaid">
+flowchart TD
+    A[攻擊者在 Claude.ai 建立對話] -->|包裝惡意安裝指令| B[產生 Claude Share Link]
+    B -->|透過 SEO 投毒提升排名| C(Google 搜尋結果第一筆)
+    U[使用者搜尋安裝方式] -->|信任 claude.ai 網域| C
+    C -->|點擊進入並複製指令| D[於 macOS 終端機執行指令]
+    D -->|第一階段| E[解密 Base64 網址並下載惡意腳本]
+    E -->|第二階段| F[搜集 Keychain / SSH / AWS Key / 瀏覽器資料]
+    F -->|第三階段| G[置換加密錢包並打包上傳]
+    G --> H[攻擊者取得敏感憑證與資料]
+    </div>
+    <figcaption>完整攻擊鏈共 9 個節點，桌面與手機皆採直式排列，確保每個步驟在窄螢幕上仍清楚可讀</figcaption>
+  </figure>
+
+  <p>第一階段是<strong>信任劫持</strong>：攻擊者在 Claude.ai 建立一段對話，把惡意安裝指令寫進去，產生分享連結，再透過 SEO 投毒或購買廣告把它推上搜尋結果前列。使用者搜尋安裝方式，看到熟悉的網域，點進去，複製貼上——這個動作本身就是攻擊鏈裡「使用者執行」的關鍵一步，在資安框架裡有專門的名稱與編號可以對應。</p>
+  <p>第二階段是<strong>混淆與繞過</strong>：貼上的指令並非明文，而是經過 Base64 編碼包裝，一般人肉眼難以判讀內容，自然也就跳過了「先看內容再執行」這道最基本的防線。指令執行後，會先解碼出真正的下載位址，再取得後續腳本，整個過程刻意避開瀏覽器的下載掃描與 macOS Gatekeeper 的簽章驗證，因為使用者是在終端機裡手動貼上執行，而不是雙擊一個被隔離標記的下載檔案。</p>
+  <p>第三階段是<strong>憑證洗劫</strong>：腳本開始有系統地搜刮 macOS Keychain 裡的帳號密碼、主流瀏覽器記憶的密碼與 Cookie、開發者慣用的設定檔（<code>~/.ssh</code>、<code>~/.aws</code>、<code>~/.kube</code> 等）、通訊軟體資料，甚至針對加密貨幣錢包應用程式（如 Ledger、Trezor）進行置換攻擊，把使用者導向偽造介面騙取私鑰，最後把整包資料打包上傳。當事人自己動用工具鏈進一步拆解，這個階段其實還能再細分成三個內部執行步驟：先執行取得的腳本、再下載並執行第二支腳本把蒐集到的資料回傳一次、最後下載另一支程式鎖定重點應用程式進行竊取與置換——上面的三段劃分是為了說明攻擊全貌所做的整理，涵蓋了執行前的誘導手法，不等同於當事人針對惡意程式本體所做的技術分期。</p>
+  <p>不論怎麼切分，這條鏈路上的每一步都能逐一對應到 MITRE ATT&amp;CK 這套全球通用的攻擊技術分類框架，讓「這次到底發生了什麼」從一段驚魂敘述，變成一張可以被複製、被偵測、被防禦的技術地圖。</p>
+
+  <figure class="diagram">
+    <div id="diagram-attck" class="mermaid-rendered"></div>
+    <script type="text/plain" id="diagram-attck-lr">flowchart LR
+    A[SEO投毒 + 惡意廣告] --> B[誘導複製貼上執行]
+    B --> C[Base64解碼繞過檢查]
+    C --> D[竊取Keychain與Cookie]
+    D --> E[打包本機檔案]
+    E --> F[外傳至C2伺服器]</script>
+    <script type="text/plain" id="diagram-attck-td">flowchart TD
+    A[SEO投毒 + 惡意廣告] --> B[誘導複製貼上執行]
+    B --> C[Base64解碼繞過檢查]
+    C --> D[竊取Keychain與Cookie]
+    D --> E[打包本機檔案]
+    E --> F[外傳至C2伺服器]</script>
+    <figcaption>精簡版 6 節點攻擊鏈：桌面採橫式（左至右）閱讀，手機自動切換為直式，對應下表 MITRE ATT&amp;CK 技術編號</figcaption>
+  </figure>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ATT&amp;CK 戰術</th><th>Technique</th><th>ID</th></tr></thead>
+      <tbody>
+        <tr><td>Resource Development</td><td>SEO Poisoning</td><td>T1608.006</td></tr>
+        <tr><td>Resource Development</td><td>Malvertising</td><td>T1583.008</td></tr>
+        <tr><td>Execution</td><td>Malicious Copy and Paste</td><td>T1204.004</td></tr>
+        <tr><td>Execution</td><td>Unix Shell</td><td>T1059.004</td></tr>
+        <tr><td>Defense Evasion</td><td>Deobfuscate/Decode Files or Information</td><td>T1140</td></tr>
+        <tr><td>Credential Access</td><td>Credentials from Password Stores: Keychain</td><td>T1555.001</td></tr>
+        <tr><td>Credential Access</td><td>Unsecured Credentials In Files</td><td>T1552.001</td></tr>
+        <tr><td>Credential Access</td><td>Steal Web Session Cookie</td><td>T1539</td></tr>
+        <tr><td>Collection</td><td>Data from Local System</td><td>T1005</td></tr>
+        <tr><td>Exfiltration</td><td>Exfiltration Over Web Service</td><td>T1567</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>事後的處置動作同樣能對號入座：斷網、關機、抹除磁碟、變更密碼、檢查登入裝置——這一連串反射動作，精準對應到 NIST 事件應變框架（SP 800-61）裡的「圍堵」與「根除」步驟。換句話說，這名使用者在毫無準備的情況下，憑直覺做出了教科書等級的應變，但如果一開始就有柵欄擋在指令執行之前，這整套應變流程根本不必上場。</p>
+
+  <h2 id="industry">這不是特例，是一整條產業鏈</h2>
+  <p>最容易讓人低估這起事件的想法是「運氣不好，遇到針對性攻擊」。查證結果恰恰相反。</p>
+  <p>過去幾個月，至少十起獨立記錄的活動，手法與這起案例高度重疊：有攻擊者複製 Claude Code 的官方安裝頁面再投放 Google 廣告；有人偽造 ChatGPT 與 Grok 的對話介面誘導受害者執行指令，執行前還會用系統指令靜默驗證使用者輸入的密碼是否正確，確保竊來的密碼真實可用；有專門針對 macOS 系統工具的偽裝頁面，以「終端機貼上一行指令」為誘餌，繞過蘋果原生的 Gatekeeper 簽章檢查。這套誘導使用者手動貼上指令執行的手法，在威脅情報圈已經有了專屬名稱——ClickFix。</p>
+  <p>而背後扛起竊密工作的惡意程式，也早已形成一個活躍的地下市場。Atomic macOS Stealer 在 2025 年一度佔了近四成的 macOS 威脅偵測量，能解開 Keychain、掃遍瀏覽器與加密錢包；它的分支 Poseidon 與重製版 Odyssey 鎖定上百種瀏覽器擴充功能；Cthulhu 用 Go 語言撰寫，直接在 Telegram 上以訂閱服務的形式出租給其他犯罪者使用；Banshee 則專門把竊得的資料回傳到境外伺服器。這些名字聽起來像是獨立的孤例，實際上彼此借用程式碼、共享銷售通路，是一整條分工明確的犯罪供應鏈。</p>
+  <p>規模最讓人意外的一份追蹤報告來自趨勢科技：他們鎖定同一波濫用 Claude.ai 分享對話功能的 ClickFix 惡意廣告活動，在短短七週內就記錄到六波攻擊、106 個不同的惡意主機名稱，同時冒充 Claude AI、ChatGPT Codex、Perplexity、Cursor IDE、JetBrains 等至少六個主流 AI／開發者工具品牌。更值得注意的是地理分布：亞太地區佔了確認受害流量的 67.2%，其中台灣單一地區就佔了整體流量的 30.5%——這樣的集中度指向的是刻意鎖定的廣告投放，而不是隨機散彈打鳥。趨勢科技通報後，Anthropic 已將涉案帳號停權、下架相關的惡意分享對話，並著手強化分享功能的濫用防護機制。</p>
+  <p>面對這樣的態勢，美國聯邦調查局（FBI）已針對搜尋廣告詐騙與惡意流量分配系統發出正式公眾警示，聯邦貿易委員會（FTC）另外點名假冒 AI 工具軟體廣告這類消費者風險，網路安全暨基礎設施安全局（CISA）則從軟體供應鏈信任驗證的角度提出防禦指引——三個機構分別從不同角度切入同一種攻擊型態，代表相關單位已經把這類攻擊視為一種需要制度性應對的公眾風險，而不是零星個案。</p>
+
+  <h2 id="defense">給重度依賴 AI 協作者的防護清單</h2>
+  <p>如果日常工作習慣是用口語快速對 AI 下指令、講求速度與流暢（也就是所謂的 vibe coding），觀念上的警覺其實遠遠不夠，因為警覺會在疲憊、趕時間、身處陌生環境時失靈——四十秒的災情就是明證。真正能撐住的，是預先建好、不依賴當下判斷力的技術柵欄。</p>
+
+  <h3>第一層・執行環境隔離</h3>
+  <p>任何不明來源的一鍵安裝指令，原則上都不該在裝有正式憑證的工作機上直接執行，而是先丟進一台乾淨的虛擬機或可拋棄的容器裡跑一次。Claude Code 官方本身也提供沙盒機制，透過檔案系統隔離與網路對外連線的白名單管控，大幅降低誤觸權限的機會；使用開發容器時，也不該把主機的 SSH 金鑰目錄整個掛載進去。</p>
+
+  <h3>第二層・指令執行前的強制檢查習慣</h3>
+  <p>任何 <code>curl</code> 接管線直接執行的安裝方式，養成先把內容存下來看過一遍的習慣，而不是讓終端機直接吞下去；看到經過 Base64 或十六進位編碼的網址與內容，先解碼再判斷；更重要的是隨時區分，眼前這段指令究竟是從官方文件複製來的，還是從某個分享頁面上臨時冒出來的——這正是本次事件唯一的破口所在。</p>
+
+  <h3>第三層・憑證與金鑰隔離</h3>
+  <p>系統層級的密碼管理工具與瀏覽器記憶密碼功能能少用就少用，一旦真的被植入竊密程式，損害範圍才會被限制在最小範圍；像 SSH 金鑰、雲端服務憑證這類高價值目標，更適合搬到需要額外驗證才能解鎖的位置存放。</p>
+
+  <h3>第四層・AI 代理人的權限最小化</h3>
+  <p>當手上同時串接多個 MCP 工具、讓 AI 能夠直接操作日誌系統、防火牆、虛擬化平台時，每一個工具的授權範圍都值得重新檢視一次是否收得夠緊——這正是國際上針對 LLM 與自主代理人風險框架裡，反覆被提及的「過度授權」問題。同時，任何一台新機器，裝設端點偵測與防護軟體的優先順序都該排在其他工具之前，而不是等出事後才發現保護傘還沒撐開。</p>
+
+  <h3>第五層・網路層防護</h3>
+  <p>端點防毒軟體雖然不是萬靈丹，但在多起同類案例裡確實攔下過第一階段的惡意腳本下載；搭配防火牆或 DNS 層過濾，擋掉已知的竊密程式對外連線位址，能在攻擊鏈條的更早一段就切斷它。</p>
+
+  <h2 id="conclusion">總結</h2>
+  <div class="conclusion-box">
+    <p>這起事件真正的教訓，不是「要小心不明連結」這種老生常談，而是揭露了一個更根本的問題：當攻擊者放棄偽造網域，轉而寄生在合法平台的分享機制裡，傳統上依賴「網址看起來對不對」的直覺防線，已經徹底失效。SEO 投毒讓假頁面登上搜尋榜首、共享連結讓網域信譽形同虛設、Base64 混淆讓內容審查失去意義——三層手法疊加起來，足以讓一名資安意識充分的使用者，在四十秒內就從新機開箱走到全機抹除。這不是孤例，而是 2026 年上半年一整條已被多家威脅情報機構獨立證實的攻擊產業鏈的其中一環。真正能夠對抗這種攻擊的，從來不是事後更快的反應速度，而是預先架好、不依賴當下判斷力的技術柵欄——沙盒隔離、憑證分離、權限最小化，把信任的成本，從「相信一眼看到的網址」，轉移到「不管網址是誰，先假設指令有問題」。</p>
+  </div>
+
+  <h2 id="links">參考連結彙整</h2>
+  <p class="ref-legend">標註 <span class="unverified-badge">原文403・已交叉驗證</span> 的連結，其來源網站因反爬蟲機制回應 HTTP 403，本文未能直接開啟原始頁面；但已透過至少 5 家以上各自獨立的科技媒體轉載，比對其中復述的具體技術細節（如惡意網域名稱、攻擊手法描述、統計數字）彼此一致，以交叉比對的方式確認內容真實性，仍建議引用前自行至原始網址核對一次。</p>
+
+  <div class="ref-group">
+    <h3>MITRE ATT&amp;CK 官方技術對應</h3>
+    <ul>
+      <li><span>SEO Poisoning (T1608.006)：</span><a href="https://attack.mitre.org/techniques/T1608/006/" target="_blank" rel="noopener">attack.mitre.org/techniques/T1608/006</a></li>
+      <li><span>Malvertising (T1583.008)：</span><a href="https://attack.mitre.org/techniques/T1583/008/" target="_blank" rel="noopener">attack.mitre.org/techniques/T1583/008</a></li>
+      <li><span>Malicious Copy and Paste (T1204.004)：</span><a href="https://attack.mitre.org/techniques/T1204/004/" target="_blank" rel="noopener">attack.mitre.org/techniques/T1204/004</a></li>
+      <li><span>Unix Shell (T1059.004)：</span><a href="https://attack.mitre.org/techniques/T1059/004/" target="_blank" rel="noopener">attack.mitre.org/techniques/T1059/004</a></li>
+      <li><span>Deobfuscate/Decode Files or Information (T1140)：</span><a href="https://attack.mitre.org/techniques/T1140/" target="_blank" rel="noopener">attack.mitre.org/techniques/T1140</a></li>
+      <li><span>Credentials from Password Stores: Keychain (T1555.001)：</span><a href="https://attack.mitre.org/techniques/T1555/001/" target="_blank" rel="noopener">attack.mitre.org/techniques/T1555/001</a></li>
+      <li><span>Unsecured Credentials In Files (T1552.001)：</span><a href="https://attack.mitre.org/techniques/T1552/001/" target="_blank" rel="noopener">attack.mitre.org/techniques/T1552/001</a></li>
+      <li><span>Steal Web Session Cookie (T1539)：</span><a href="https://attack.mitre.org/techniques/T1539/" target="_blank" rel="noopener">attack.mitre.org/techniques/T1539</a></li>
+      <li><span>Data from Local System (T1005)：</span><a href="https://attack.mitre.org/techniques/T1005/" target="_blank" rel="noopener">attack.mitre.org/techniques/T1005</a></li>
+      <li><span>Exfiltration Over Web Service (T1567)：</span><a href="https://attack.mitre.org/techniques/T1567/" target="_blank" rel="noopener">attack.mitre.org/techniques/T1567</a></li>
+    </ul>
+  </div>
+
+  <div class="ref-group">
+    <h3>同類攻擊案例與威脅情報</h3>
+    <ul>
+      <li><span>InstallFix（假冒 Claude Code 安裝頁）— Push Security：</span><a href="https://pushsecurity.com/blog/installfix" target="_blank" rel="noopener">pushsecurity.com/blog/installfix</a></li>
+      <li><span>假冒 Claude Code Google Ads（Amatera/ACR Stealer）— Bitdefender Labs：</span><a href="https://www.bitdefender.com/en-us/blog/labs/fake-claude-code-google-ads-malware" target="_blank" rel="noopener">bitdefender.com/.../fake-claude-code-google-ads-malware</a></li>
+      <li><span>Fake Claude Code Install Pages — Malwarebytes：</span><a href="https://www.malwarebytes.com/blog/news/2026/03/fake-claude-code-install-pages-hit-windows-and-mac-users-with-infostealers" target="_blank" rel="noopener">malwarebytes.com/.../fake-claude-code-install-pages</a></li>
+      <li><span>MacSync Stealer 投放鏈 — CloudSEK：</span><a href="https://www.cloudsek.com/blog/macsync-stealer-seo-poisoning-and-clickfix-based-macos-malware-delivery-chain" target="_blank" rel="noopener">cloudsek.com/.../macsync-stealer</a><span class="unverified-badge">原文403・已交叉驗證</span></li>
+      <li><span>AI-Poisoning（假冒 ChatGPT/Grok 對話頁）— Huntress：</span><a href="https://www.huntress.com/blog/amos-stealer-chatgpt-grok-ai-trust" target="_blank" rel="noopener">huntress.com/blog/amos-stealer-chatgpt-grok-ai-trust</a></li>
+      <li><span>Google Ads + claude.ai 共享聊天投放 MacSync — CyberSecurityNews：</span><a href="https://cybersecuritynews.com/macos-malware-leverages-google-ads/" target="_blank" rel="noopener">cybersecuritynews.com/macos-malware-leverages-google-ads</a></li>
+      <li><span>LLMShare：濫用 ChatGPT/Claude 分享功能 — Push Security：</span><a href="https://pushsecurity.com/blog/llmshare-malvertising-campaign" target="_blank" rel="noopener">pushsecurity.com/blog/llmshare-malvertising-campaign</a></li>
+      <li><span>ChatGPT Share Links 假故障頁 — BleepingComputer：</span><a href="https://www.bleepingcomputer.com/news/security/chatgpt-share-links-abused-to-host-fake-outage-pages-to-deliver-malware/" target="_blank" rel="noopener">bleepingcomputer.com/.../chatgpt-share-links-abused</a><span class="unverified-badge">原文403・已交叉驗證</span></li>
+      <li><span>ClickFix 假冒 macOS 系統工具 — Microsoft Security Blog：</span><a href="https://www.microsoft.com/en-us/security/blog/2026/05/06/clickfix-campaign-uses-fake-macos-utilities-lures-deliver-infostealers/" target="_blank" rel="noopener">microsoft.com/.../clickfix-campaign</a></li>
+      <li><span>200+ 惡意 Google Ads 冒充知名軟體 — Cybernews：</span><a href="https://cybernews.com/security/hackers-spread-mac-infostealer-using-google-ads/" target="_blank" rel="noopener">cybernews.com/.../hackers-spread-mac-infostealer</a><span class="unverified-badge">原文403・已交叉驗證</span></li>
+      <li><span>Trend Micro：Claude.ai Shared Chat 被濫用：</span><a href="https://www.trendmicro.com/en_us/research/26/f/claudeai-shared-chat-abused-in-malvertising.html" target="_blank" rel="noopener">trendmicro.com/.../claudeai-shared-chat-abused</a><span class="unverified-badge">原文403・已交叉驗證</span></li>
+    </ul>
+  </div>
+
+  <div class="ref-group">
+    <h3>macOS Infostealer 家族</h3>
+    <ul>
+      <li><span>Atomic macOS Stealer（AMOS）— Darktrace：</span><a href="https://www.darktrace.com/blog/atomic-stealer-darktraces-investigation-of-a-growing-macos-threat" target="_blank" rel="noopener">darktrace.com/.../atomic-stealer</a></li>
+      <li><span>Poseidon Stealer — Red Canary：</span><a href="https://redcanary.com/blog/threat-intelligence/atomic-odyssey-poseidon-stealers/" target="_blank" rel="noopener">redcanary.com/.../atomic-odyssey-poseidon-stealers</a></li>
+      <li><span>Cthulhu Stealer — Unit 42：</span><a href="https://unit42.paloaltonetworks.com/macos-stealers-growing/" target="_blank" rel="noopener">unit42.paloaltonetworks.com/macos-stealers-growing</a></li>
+      <li><span>Banshee Stealer — Intego：</span><a href="https://www.intego.com/mac-security-blog/mac-stealer-malware-market-surges-with-banshee-and-new-threat-actors/" target="_blank" rel="noopener">intego.com/.../banshee-and-new-threat-actors</a></li>
+    </ul>
+  </div>
+
+  <div class="ref-group">
+    <h3>官方規範與框架</h3>
+    <ul>
+      <li><span>FBI IC3 PSA260618（惡意流量分配系統）：</span><a href="https://www.ic3.gov/PSA/2026/PSA260618" target="_blank" rel="noopener">ic3.gov/PSA/2026/PSA260618</a></li>
+      <li><span>FBI IC3 PSA221221（搜尋廣告冒充品牌）：</span><a href="https://www.ic3.gov/PSA/2022/PSA221221" target="_blank" rel="noopener">ic3.gov/PSA/2022/PSA221221</a></li>
+      <li><span>FTC 消費者警示（假 AI/軟體廣告）：</span><a href="https://consumer.ftc.gov/consumer-alerts/2023/04/ads-fake-ai-other-software-spread-malicious-software" target="_blank" rel="noopener">consumer.ftc.gov/.../ads-fake-ai-other-software</a></li>
+      <li><span>CISA 供應鏈攻擊防禦：</span><a href="https://www.cisa.gov/resources-tools/resources/defending-against-software-supply-chain-attacks" target="_blank" rel="noopener">cisa.gov/.../defending-against-software-supply-chain-attacks</a></li>
+      <li><span>NIST SP 800-61 Rev.3（事件應變）：</span><a href="https://csrc.nist.gov/pubs/sp/800/61/r3/final" target="_blank" rel="noopener">csrc.nist.gov/pubs/sp/800/61/r3/final</a></li>
+      <li><span>NIST Cybersecurity Framework 2.0：</span><a href="https://www.nist.gov/cyberframework" target="_blank" rel="noopener">nist.gov/cyberframework</a></li>
+      <li><span>Claude Code 官方安裝文件：</span><a href="https://code.claude.com/docs/en/setup" target="_blank" rel="noopener">code.claude.com/docs/en/setup</a></li>
+      <li><span>Claude Code Devcontainer 文件：</span><a href="https://code.claude.com/docs/en/devcontainer" target="_blank" rel="noopener">code.claude.com/docs/en/devcontainer</a></li>
+      <li><span>Anthropic Claude Code Sandboxing 工程部落格：</span><a href="https://www.anthropic.com/engineering/claude-code-sandboxing" target="_blank" rel="noopener">anthropic.com/engineering/claude-code-sandboxing</a></li>
+      <li><span>OWASP Top 10 for Agentic Applications 2026：</span><a href="https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/" target="_blank" rel="noopener">genai.owasp.org/.../agentic-applications-for-2026</a></li>
+      <li><span>OWASP Top 10 for LLM Applications：</span><a href="https://genai.owasp.org/llm-top-10/" target="_blank" rel="noopener">genai.owasp.org/llm-top-10</a></li>
+    </ul>
+  </div>
+
+</article>
+
+<footer class="site-footer">
+  <p>本文已將原始事件當事人之姓名、社群個人檔案連結、含人臉之照片全數去識別化。標註於各連結之查證結果，部分因來源網站反爬蟲機制（HTTP 403）僅能以搜尋引擎摘要交叉確認標題與存在性，建議讀者自行開啟核對後再作為正式引用依據。</p>
+</footer>
+
+<div class="lightbox" id="lightbox">
+  <span class="lightbox-hint">點擊或按 Esc 關閉</span>
+  <div class="lightbox-inner" id="lightbox-inner"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha384-F/bZzf7p3Joyp5psL90p/p89AZJsndkSoGwRpXcZhleCWhd8SnRuoYo4d0yirjJp" crossorigin="anonymous"></script>
+<script>
+  hljs.highlightAll();
+  (function(){
+    var lightbox = document.getElementById("lightbox");
+    var inner = document.getElementById("lightbox-inner");
+
+    function openLightboxImg(img){
+      inner.innerHTML = "";
+      var clone = document.createElement("img");
+      clone.src = img.currentSrc || img.src;
+      clone.alt = img.alt;
+      inner.appendChild(clone);
+      lightbox.classList.add("is-open");
+    }
+    function openLightboxSvg(svg){
+      // mermaid 的樣式是用該 svg 自己的 id 做 CSS scoping（#id .node rect{...}），
+      // 直接 removeAttribute("id") 會讓內嵌 <style> 選擇器全部失效，畫面變成無樣式的黑色方框。
+      // 這裡改成把整段 outerHTML 裡的原始 id 字串，全部換成一個新的唯一 id 再插入，
+      // 讓 <style> 規則、marker 的 url(#id) 參照都能對得上新的 id。
+      var originalId = svg.id;
+      var html = svg.outerHTML;
+      if (originalId){
+        var newId = originalId + "-zoom-" + Date.now();
+        html = html.split(originalId).join(newId);
+      }
+      inner.innerHTML = html;
+      lightbox.classList.add("is-open");
+    }
+    function closeLightbox(){ lightbox.classList.remove("is-open"); inner.innerHTML = ""; }
+
+    document.querySelectorAll("figure.summary-figure img").forEach(function(img){
+      img.addEventListener("click", function(){ openLightboxImg(img); });
+    });
+
+    // Mermaid 圖表點擊放大：click 當下才查詢 svg，避免抓到渲染完成前的空容器
+    document.querySelectorAll(".mermaid, .mermaid-rendered").forEach(function(container){
+      container.addEventListener("click", function(){
+        var svg = container.querySelector("svg");
+        if (svg) openLightboxSvg(svg);
+      });
+    });
+
+    // 放大檢視內容本身可捲動/選取，只有點擊背景空白處才關閉
+    inner.addEventListener("click", function(e){ e.stopPropagation(); });
+    lightbox.addEventListener("click", closeLightbox);
+    document.addEventListener("keydown", function(e){ if (e.key === "Escape") closeLightbox(); });
+  })();
+
+  // 響應式 Mermaid：依裝置寬度動態渲染桌面橫式(LR)／手機直式(TD)版本，
+  // 避免用 display:none 預先隱藏另一版面導致 mermaid 因無法量測版面而渲染失敗
+  (function(){
+    var container = document.getElementById("diagram-attck");
+    var lrDef = document.getElementById("diagram-attck-lr").textContent;
+    var tdDef = document.getElementById("diagram-attck-td").textContent;
+    var mq = window.matchMedia("(max-width: 640px)");
+    var renderId = 0;
+
+    function render(){
+      var isMobile = mq.matches;
+      var def = isMobile ? tdDef : lrDef;
+      var id = "mmd-attck-" + (renderId++);
+      mermaid.render(id, def).then(function(result){
+        container.innerHTML = result.svg;
+      }).catch(function(err){
+        console.error("mermaid render failed", err);
+      });
+    }
+
+    render();
+    mq.addEventListener("change", render);
+  })();
+</script>
+</body>
+</html>
