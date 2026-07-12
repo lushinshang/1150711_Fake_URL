@@ -403,7 +403,8 @@
 <h3>攻擊流程圖 （Attack Flowchart）</h3>
 <pre><code class="language-mermaid">flowchart TD
     A[攻擊者在 Claude.ai 建立對話] --&gt;|包裝惡意安裝指令| B[產生 Claude Share Link]
-    B --&gt;|透過 SEO Poisoning 提升排名| C(Google 搜尋結果第一筆)
+    B --&gt;|透過 SEO Poisoning (Organic) 提升排名| C(Google 搜尋結果第一筆 / 廣告版位)
+    B --&gt;|購買 Google Ads 惡意廣告 (Paid Ad)| C
     U[使用者搜尋 Claude Code 安裝] --&gt;|信任 claude.ai 網域| C
     C --&gt;|點擊進入並複製指令| D[於 macOS 終端機執行指令]
     D --&gt;|第一階段| E[解密 Base64 網址並下載惡意腳本]
