@@ -195,6 +195,16 @@
     article{padding:8px 20px 60px;}
     nav.toc .toc-row{gap:16px;}
   }
+  .info-box{
+    margin:24px 0; padding:18px 22px;
+    background:var(--card-bg); border:1px solid var(--border); border-left:4px solid #3b82f6;
+    border-radius:6px; font-size:0.92em;
+  }
+  .info-box p{margin:0 0 10px;}
+  .info-box p:last-child{margin:0;}
+  .info-box ul{margin:0; padding-left:1.4em;}
+  .info-box li{margin-bottom:8px;}
+  .info-box li:last-child{margin-bottom:0;}
 </style>
 </head>
 <body>
@@ -352,9 +362,28 @@ flowchart TD
     </ul>
   </div>
 
+  <div class="info-box">
+    <p><strong>💡 觀念澄清：SEO 投毒（Organic）與 惡意廣告（Malvertising）的差別</strong></p>
+    <p>在許多社群討論中，這兩者常被混為一談。但從技術與防範角度來看，兩者屬於 MITRE ATT&CK 中不同的資源開發戰術（Resource Development）：</p>
+    <ul>
+      <li><strong>SEO 投毒（SEO Poisoning, T1608.006）</strong>：攻擊者操作搜尋引擎最佳化（SEO）演算法，使其惡意網頁提升至<strong>自然搜尋結果（Organic Results）</strong>前列。
+        <ul>
+          <li><strong>經典案例：Gootloader 惡意下載器</strong>。攻擊者入侵大量合法的 WordPress 網站，並塞入偽裝成法律合約或商業協議範本的網頁與關鍵字。當使用者在搜尋「transition services agreement」等商業範本時，被高排名的惡意論壇網頁吸引，下載了打包成 ZIP 的惡意 JavaScript 腳本，進而引發勒索軟體或 Cobalt Strike 感染鏈。</li>
+        </ul>
+      </li>
+      <li><strong>惡意廣告（Malvertising, T1583.008）</strong>：攻擊者直接向廣告平台<strong>付費購買廣告（Paid Ads）</strong>，將連結置於搜尋結果最上方的「廣告」或「贊助商」版位。
+        <ul>
+          <li><strong>經典案例：KeePass / Rufus 偽冒下載廣告</strong>。攻擊者購買關鍵字廣告（如 "KeePass download"），排在官方網站上方。使用者點擊後會進入 1:1 克隆的偽造官網，下載被植入竊密軟體（如 RedLine, Vidar Stealer）的安裝檔。為了規避 Google 廣告平台的審查，攻擊者使用了「Cloaking（偽裝）」重導向技術，使審查爬蟲看到乾淨的頁面，一般使用者則被引導至惡意下載頁面。</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
   <div class="ref-group">
     <h3>同類攻擊案例與威脅情報</h3>
     <ul>
+      <li><span>SEO 投毒典型案例：Gootloader 惡意下載器 — Red Canary：</span><a href="https://redcanary.com/threat-detection/gootloader/" target="_blank" rel="noopener">redcanary.com/threat-detection/gootloader</a></li>
+      <li><span>惡意廣告典型案例：KeePass 偽冒 Google 廣告 — Malwarebytes：</span><a href="https://www.malwarebytes.com/blog/news/2023/10/malvertising-via-google-ads-points-to-fake-keepass-website" target="_blank" rel="noopener">malwarebytes.com/.../malvertising-via-google-ads-points-to-fake-keepass-website</a></li>
       <li><span>InstallFix（假冒 Claude Code 安裝頁）— Push Security：</span><a href="https://pushsecurity.com/blog/installfix" target="_blank" rel="noopener">pushsecurity.com/blog/installfix</a></li>
       <li><span>假冒 Claude Code Google Ads（Amatera/ACR Stealer）— Bitdefender Labs：</span><a href="https://www.bitdefender.com/en-us/blog/labs/fake-claude-code-google-ads-malware" target="_blank" rel="noopener">bitdefender.com/.../fake-claude-code-google-ads-malware</a></li>
       <li><span>Fake Claude Code Install Pages — Malwarebytes：</span><a href="https://www.malwarebytes.com/blog/news/2026/03/fake-claude-code-install-pages-hit-windows-and-mac-users-with-infostealers" target="_blank" rel="noopener">malwarebytes.com/.../fake-claude-code-install-pages</a></li>

@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>macOS Claude Code SEO 詐騙案例 — 完整報告（去識別化）</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" integrity="sha384-eFTL69TLRZTkNfYZOLM+G04821K1qZao/4QLJbet1pP4tcF+fdXq/9CdqAbWRl/L" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha384-F/bZzf7p3Joyp5psL90p/p89AZJsndkSoGwRpXcZhleCWhd8SnRuoYo4d0yirjJp" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" crossorigin="anonymous"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+    <style>
+        :root {
+            --bg-color: #f9f7f4;
+            --text-color: #1a1a1a;
+            --primary-color: #0866FF;
+            --border-color: #e5e5e0;
+            --card-bg: #ffffff;
+            --code-bg: #f3f1eb;
+            --blockquote-bg: #f1f0ea;
+            --alert-important-bg: #ffe3de;
+            --alert-important-border: #dd2334;
+            --alert-important-text: #8d101b;
+            --alert-warning-bg: #fff3cd;
+            --alert-warning-border: #ffc107;
+            --alert-warning-text: #856404;
+            --redact-bg: #e0e0e0;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --primary-color: #3f8cff;
+            --border-color: #2c2c2c;
+            --card-bg: #1e1e1e;
+            --code-bg: #2d2d2d;
+            --blockquote-bg: #1e1e1a;
+            --alert-important-bg: #3c1e1e;
+            --alert-important-border: #dd2334;
+            --alert-important-text: #ff9b9b;
+            --alert-warning-bg: #332700;
+            --alert-warning-border: #ffc107;
+            --alert-warning-text: #ffe082;
+            --redact-bg: #3a3a3a;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+            line-height: 1.72;
+            font-size: 17px;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+
+        h1, h2, h3 {
+            text-wrap: balance;
+            color: var(--text-color);
+            font-weight: 700;
+            margin-top: 1.8em;
+            margin-bottom: 0.6em;
+        }
+
+        h1 {
+            font-size: 2.1rem;
+            line-height: 1.3;
+            margin-bottom: 0.8em;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            border-bottom: 1.5px solid var(--border-color);
+            padding-bottom: 0.4em;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+        }
+
+        p { margin-bottom: 1.5em; }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            word-break: break-all;
+        }
+        a:hover { text-decoration: underline; }
+
+        blockquote {
+            background-color: var(--blockquote-bg);
+            border-left: 4px solid var(--primary-color);
+            padding: 12px 20px;
+            margin: 24px 0;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .alert {
+            padding: 16px 20px;
+            margin: 24px 0;
+            border-left: 4px solid;
+            border-radius: 0 8px 8px 0;
+        }
+        .alert p { margin: 0; }
+        .alert-important {
+            background-color: var(--alert-important-bg);
+            border-left-color: var(--alert-important-border);
+            color: var(--alert-important-text);
+        }
+        .alert-warning {
+            background-color: var(--alert-warning-bg);
+            border-left-color: var(--alert-warning-border);
+            color: var(--alert-warning-text);
+        }
+
+        .redacted {
+            background-color: var(--redact-bg);
+            color: transparent;
+            border-radius: 3px;
+            padding: 0 6px;
+            user-select: none;
+        }
+
+        .note-unverified {
+            display: inline-block;
+            font-size: 0.75em;
+            padding: 1px 6px;
+            border-radius: 4px;
+            background: var(--alert-warning-bg);
+            color: var(--alert-warning-text);
+            margin-left: 4px;
+        }
+
+        figure { margin: 32px 0; text-align: center; }
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 32px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 0.92em;
+            display: block;
+            overflow-x: auto;
+        }
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px 14px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th { background-color: var(--code-bg); font-weight: 700; white-space: nowrap; }
+
+        pre {
+            background-color: var(--code-bg);
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 24px 0;
+        }
+        code { font-family: ui-monospace, Menlo, Consolas, Monaco, monospace; font-size: 0.9em; }
+        p code, li code, td code {
+            background-color: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .mermaid {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            margin: 32px 0;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: center;
+        }
+        [data-theme="dark"] .mermaid { filter: invert(0.9) hue-rotate(180deg); }
+
+        .theme-switch {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 100;
+            transition: all 0.2s;
+        }
+        .theme-switch:hover { transform: scale(1.05); }
+
+        ul, ol { margin-bottom: 1.5em; padding-left: 24px; }
+        li { margin-bottom: 0.5em; }
+
+        hr { border: none; border-top: 1px solid var(--border-color); margin: 40px 0; }
+
+        @media (max-width: 640px) {
+            .container { padding: 40px 16px; }
+            h1 { font-size: 1.6rem; }
+            h2 { font-size: 1.3rem; }
+            body { font-size: 16px; }
+            .theme-switch { top: auto; bottom: 24px; right: 16px; }
+            table { font-size: 0.82em; }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-switch" id="theme-btn">切換深色模式</button>
+
+    <div class="container">
+        <h1>macOS Claude Code 惡意 SEO 詐騙案例<br>完整分析報告（去識別化版）</h1>
+
+        <div class="alert alert-warning">
+            <p><strong>去識別化聲明</strong>：本報告已將原始貼文之發文者本名、Facebook 個人檔案連結、貼文連結、留言者本名與含人臉之頭像照片全數移除或以代稱取代，僅保留與資安事件分析相關之技術內容，以保護當事人隱私。</p>
+        </div>
+
+        <hr />
+
+        <h2>第一部分：原始事件經過（已去識別化）</h2>
+
+        <h3>原始貼文資訊</h3>
+        <ul>
+            <li><strong>發文者</strong>：<span class="redacted">████████</span>（原发文者，本報告以「<strong>案主</strong>」代稱；本名與 Facebook 個人檔案連結已移除）</li>
+            <li><strong>發文時間</strong>：2026 年 7 月 10 日 22:56</li>
+            <li><strong>原始貼文連結</strong>：（已移除，保護當事人隱私）</li>
+        </ul>
+
+        <hr />
+
+        <h3>貼文本文</h3>
+
+        <div class="alert alert-important"><p><strong>[7/10 資安案例分享，使用 mac 及 claude code 朋友請留意]</strong></p></div>
+
+        <p>案主最近新購的 MacBook Air M5 剛到貨（7/9），正在把需要的軟體裝的差不多了，剩下 Claude Code 還沒裝。</p>
+        <p>結果事情大條。</p>
+        <hr />
+        <p>7/10 上午案主先去 google 搜尋最新版 claude code 安裝指令，第一個結果看起來是 <code>claude.ai</code> 的 domain 沒錯（圖一），進去也有一行指令（圖二），忙碌中一時不察就在新機執行。..。忽然感到不太對勁，瞄一眼網址怎麼是 base64 的，然後開始跳 macOS 的 keychain 一直問密碼！</p>
+        <p>馬上警覺，立刻中止、關閉 WIFI、關機、進入 Recovery 完整抹除磁碟。至此，忽然覺得這兩天新機做環境都做白工了 = =</p>
+        <hr />
+        <p>從貼上指令執行到斷網與關機，總共過去約 40 秒。</p>
+        <p>採用處理過的 claude chat 內容 share 出來這招，果然高。</p>
+        <p>冷靜想了一下，以原本的平常用工作機回頭分析可能有那些問題：</p>
+        <ul>
+            <li><strong>#一</strong>：將該指令的 base64 解碼後網址送去 VirusTotal 檢測，尚未被發現出問題（圖三）。</li>
+            <li><strong>#二</strong>：打開 Claude Code 請它以該指令模擬整個執行後以及又下載那些 payload 進行，結果分析快完成時 Claude 就因為資安政策打斷了。</li>
+            <li><strong>#三</strong>：改用 Codex 接續分析。</li>
+            <li><strong>#四</strong>：同時，用 Claude Desktop 接取 <code>mcp_graylog</code>，從 log 中分析 opnsense、zenarmor、adguard 等等記錄，確認下載兩次 payload 並上傳一次資料出去。</li>
+            <li><strong>#五</strong>：接著搭配 <code>mcp_pve</code>、<code>mcp_wazuh</code>、<code>mcp_zimbra</code> 等等自製的多個週邊系統 mcp 工具檢測，確認尚未發起橫向移動行為。</li>
+            <li><strong>#六</strong>：該主機還沒安裝 Wazuh Agent，所以沒來得及記錄到本機行為。</li>
+            <li><strong>#七</strong>：Codex 分析完成，確認分三個階段：執行 script、下載其它 script 執行並上傳搜集資料、下載另一支惡意程式並取得重點應用程式資料（其中包括 Ledger/Trezor 這兩個加密貨幣相關軟體甚至會替換成加料版）。</li>
+            <li><strong>#八</strong>：它會嘗試偷本機密碼、Keychain 內所存的帳號密碼、主流瀏覽器帳號密碼記憶庫/Cookie/IndexedDB 等、一堆系統維運與開發相關的配置檔（<code>~/</code> 裡面的 <code>.ssh</code>、<code>.aws</code>、<code>.kube</code>、<code>.zshrc</code>、<code>.zsh_history</code>、<code>.gitconfig</code> 等一堆）、Telegram 資料、<code>Desktop</code>/<code>Downloads</code>/<code>Documents</code> 資料夾內多種副檔名檔案（<code>.pdf</code>/<code>.docx</code>/<code>.key</code>/<code>.ovpn</code>/<code>.db</code>/<code>.txt</code>/<code>.kdbx</code> 等）。</li>
+        </ul>
+        <hr />
+        <p>新機剛開始初始化配置無太多資料，且案主儘量不用 macOS 的 keychain 與瀏覽器記憶密碼，所以第一次那包出去的資料中應無重要系統資料，但為了保險起見，仍然立刻檢視所有帳號隨即變更密碼、檢查登入裝置、確認 2FA。</p>
+        <hr />
+        <ul>
+            <li><strong>註一</strong>：Codex 可以完整跑完所有分析，Claude 稍微看到可疑的東西就罷工不幹了。..。（圖四）</li>
+            <li><strong>註二</strong>：7/11 這個搜尋結果依然還掛在第一筆。（圖五）</li>
+            <li><strong>註三</strong>：在測試機驗證，Avast Free for Mac 版本已經可以攔下第一步、第二步的惡意 script 下載。</li>
+        </ul>
+
+        <hr />
+
+        <h3>貼文附圖</h3>
+        <p>以下為技術性截圖（不含任何可辨識當事人身分之影像，原貼文中的個人頭像照片已移除）：</p>
+        <table>
+            <thead>
+                <tr><th>圖片名稱</th><th>圖片預覽與說明</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>圖一：搜尋結果</strong></td>
+                    <td><img alt="Google 搜尋結果" src="FB文章_images/post_photo_2.jpg" /><br>Google 搜尋結果第一筆（點進去網址是官方 domain <code>claude.ai</code>）</td>
+                </tr>
+                <tr>
+                    <td><strong>圖二：安裝對話</strong></td>
+                    <td><img alt="偽安裝對話網頁" src="FB文章_images/post_photo_3.jpg" /><br>偽裝成 Claude Code Mac 安裝步驟的 Share Link 對話頁面</td>
+                </tr>
+                <tr>
+                    <td><strong>圖三：偵測結果</strong></td>
+                    <td><img alt="偵測結果" src="FB文章_images/post_photo_4.jpg" /><br>安全防護軟體檢測或分析結果</td>
+                </tr>
+                <tr>
+                    <td><strong>圖四：分析報表</strong></td>
+                    <td><img alt="VirusTotal 檢測" src="FB文章_images/post_photo_5.jpg" /><br>對惡意 URL 的 VirusTotal 檢測或 Codex 分析報告畫面</td>
+                </tr>
+                <tr>
+                    <td><strong>圖五：仍掛在首位</strong></td>
+                    <td><img alt="搜尋結果依然掛在第一筆" src="FB文章_images/post_photo_6.jpg" /><br>7/11 搜尋時該偽造頁面依舊排在 Google 第一筆</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <hr />
+
+        <h3>社群留言與討論整理（留言者已去識別化）</h3>
+        <p>以下是該貼文下方精選的網友技術討論與交流，留言者本名已統一以代稱取代：</p>
+        <ul>
+            <li><strong>留言者1</strong>：google 搜尋結果第一筆都要看的很小。</li>
+            <li><strong>留言者2</strong>：要用 duckduckgo lite, brave, kagi search 一律不可以。要看它的 url 是不是有再包一層，再搭配 uBlock origin + Firefox。（已編輯）</li>
+            <li><strong>網友 A</strong>：wow，這個有聰明，直接把對話 sharelink 去買廣告（或是做 SEO），這樣 domain 就不是假的。</li>
+            <li><strong>網友 B</strong>：哇！這高招。不過我剛測試都回覆使用 <code>npm install</code>，沒看到 <code>curl</code>。</li>
+            <li><strong>留言者3</strong>：請問可以分享嗎？</li>
+            <li><strong>案主</strong>：已回覆。（已授權分享）</li>
+            <li><strong>留言者4</strong>：他要被關起來解剖研究了……（遞手術刀）</li>
+            <li><strong>留言者5</strong>：我為什麼要搞自己的專案就是預防這些問題，以後只會越來越隱蔽。</li>
+            <li><strong>網友 C</strong>：你也中了……我是中 codex。</li>
+        </ul>
+
+        <hr />
+
+        <h3>攻擊流程圖（原貼文附帶分析）</h3>
+        <pre><code class="language-mermaid">flowchart TD
+    A[攻擊者在 Claude.ai 建立對話] --&gt;|包裝惡意安裝指令| B[產生 Claude Share Link]
+    B --&gt;|透過 SEO Poisoning 提升排名| C(Google 搜尋結果第一筆)
+    U[使用者搜尋 Claude Code 安裝] --&gt;|信任 claude.ai 網域| C
+    C --&gt;|點擊進入並複製指令| D[於 macOS 終端機執行指令]
+    D --&gt;|第一階段| E[解密 Base64 網址並下載惡意腳本]
+    E --&gt;|第二階段| F[搜集 Keychain/SSH/AWS Key/瀏覽器資料]
+    F --&gt;|第三階段| G[替換加密錢包/竊取個人檔案並打包上傳]
+    G --&gt; H[攻擊者取得敏感憑證與資料]
+</code></pre>
+
+        <h3>案主原貼文的關鍵安全防禦指南</h3>
+        <p>1. <strong>檢查指令中的混淆代碼</strong>：在使用任何 <code>curl | sh</code> 的指令前，務必將其中的 <code>base64 -d</code> 或其他混淆內容解碼審查。<br>
+        2. <strong>認明官方安裝管道</strong>：Claude Code 官方目前應使用 <code>npm install -g @anthropic-ai/claude-code</code> 來安裝，官方文檔網址為 <code>docs.anthropic.com</code>。切勿輕信 <code>claude.ai/share</code> 產生的對話分享網址作為安裝來源。<br>
+        3. <strong>使用沙盒或測試機</strong>：在未確認指令安全前，應避免在存放重要憑證（如 SSH key, AWS key, Kubeconfig 等）的開發工作機上直接執行未經審查的網路指令。</p>
+
+        <hr />
+
+        <h2>第二部分：資安實戰專家完整分析</h2>
+
+        <h3>1. 手法定性與框架對應</h3>
+
+        <p>這不是單一漏洞，而是一條完整的<strong>社交工程 + 供應鏈信任濫用 kill chain</strong>，核心特徵：</p>
+        <ul>
+            <li><strong>SEO Poisoning + Malvertising</strong>：讓惡意頁面用付費廣告或 SEO 手法排到 Google 搜尋第一名，比官方文件還前面</li>
+            <li><strong>合法網域信任濫用（Trust Hijacking）</strong>：不是偽造網域，而是直接使用 <code>claude.ai</code> 的 Share Link 功能，讓 URL 看起來完全合法（連 VirusTotal 一時都測不出來，因為 domain 本身無罪）</li>
+            <li><strong>ClickFix / Paste-and-Run</strong>：誘導使用者手動複製貼上一段 base64 混淆指令到終端機執行，繞過瀏覽器下載掃描與 Gatekeeper</li>
+            <li><strong>macOS Infostealer 酬載</strong>：目標是 Keychain、瀏覽器憑證、<code>~/.ssh</code> <code>~/.aws</code> <code>~/.kube</code>、Telegram、加密貨幣錢包（Ledger/Trezor 置換）</li>
+        </ul>
+
+        <p>情報顯示這<strong>不是假設情境</strong>——2026 年 2-6 月間 Trend Micro、Malwarebytes、Bitdefender、Huntress、CyberSecurityNews 等多家獨立廠商各自報導過幾乎一模一樣的活動群（假冒 Claude Code 安裝頁 + claude.ai/chatgpt.com share link 濫用），案主這次踩到的是一個已經被記錄在案、正在進行中的攻擊活動族群，不是孤例。</p>
+
+        <h4>MITRE ATT&amp;CK Kill Chain 對應</h4>
+        <pre><code class="language-mermaid">flowchart TD
+    A["Resource Development
+T1608.006 SEO Poisoning
+T1583.008 Malvertising"] --> B["Execution
+T1204.004 Malicious Copy and Paste
+T1059.004 Unix Shell"]
+    B --> C["Defense Evasion
+T1140 Deobfuscate/Decode base64"]
+    C --> D["Credential Access
+T1555.001 Keychain
+T1552.001 Credentials In Files
+T1539 Steal Web Session Cookie"]
+    D --> E["Collection
+T1005 Data from Local System"]
+    E --> F["Exfiltration
+T1567 Exfiltration Over Web Service"]
+</code></pre>
+
+        <table>
+            <thead>
+                <tr><th>ATT&amp;CK 戰術</th><th>Technique</th><th>ID</th><th>官方 URL</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Resource Development</td><td>SEO Poisoning</td><td>T1608.006</td><td><a href="https://attack.mitre.org/techniques/T1608/006/" target="_blank" rel="noopener">連結</a></td></tr>
+                <tr><td>Resource Development</td><td>Malvertising</td><td>T1583.008</td><td><a href="https://attack.mitre.org/techniques/T1583/008/" target="_blank" rel="noopener">連結</a></td></tr>
+                <tr><td>Execution</td><td>Malicious Copy and Paste</td><td>T1204.004</td><td><a href="https://attack.mitre.org/techniques/T1204/004/" target="_blank" rel="noopener">連結</a></td></tr>
+                <tr><td>Execution</td><td>Unix Shell</td><td>T1059.004</td><td><a href="https://attack.mitre.org/techniques/T1059/004/" target="_blank" rel="noopener">連結</a></td></tr>
+                <tr><td>Defense Evasion</td><td>Deobfuscate/Decode Files or Information</td><td>T1140</td><td><a href="https://attack.mitre.org/techniques/T1140/" target="_blank" rel="noopener">連結</a></td></tr>
+                <tr><td>Credential Access</td><td>Credentials from Password Stores: Keychain</td><td>T1555.001</td><td><a href="https://attack.mitre.org/techniques/T1555/001/" target="_blank" rel="noopener">連結</a></td></tr>
+                <tr><td>Credential Access</td><td>Unsecured Credentials In Files</td><td>T1552.001</td><td><a href="https://attack.mitre.org/techniques/T1552/001/" target="_blank" rel="noopener">連結</a></td></tr>
+                <tr><td>Credential Access</td><td>Steal Web Session Cookie</td><td>T1539</td><td><a href="https://attack.mitre.org/techniques/T1539/" target="_blank" rel="noopener">連結</a></td></tr>
+                <tr><td>Collection</td><td>Data from Local System</td><td>T1005</td><td><a href="https://attack.mitre.org/techniques/T1005/" target="_blank" rel="noopener">連結</a></td></tr>
+                <tr><td>Exfiltration</td><td>Exfiltration Over Web Service</td><td>T1567</td><td><a href="https://attack.mitre.org/techniques/T1567/" target="_blank" rel="noopener">連結</a></td></tr>
+            </tbody>
+        </table>
+
+        <p><strong>其他框架對照（NIST CSF 2.0）</strong>：</p>
+        <ul>
+            <li><strong>Protect</strong>：不執行不明來源腳本、驗證安裝管道</li>
+            <li><strong>Detect</strong>：VirusTotal 檢測、mcp_graylog/Wazuh 分析（案主自己做的動作，正是 Detect 象限的實踐）</li>
+            <li><strong>Respond</strong>：40 秒內斷網、關機、進 Recovery 抹碟——教科書等級的 IR containment/eradication 動作，對應 <a href="https://csrc.nist.gov/pubs/sp/800/61/r3/final" target="_blank" rel="noopener">NIST SP 800-61 Rev.3</a></li>
+        </ul>
+
+        <hr />
+
+        <h3>2. 初始投放側的同類手法／案例枚舉</h3>
+
+        <div class="alert alert-info" style="background-color: var(--alert-info-bg, rgba(59, 130, 246, 0.05)); border-left: 4px solid #3b82f6; padding: 16px; margin: 20px 0; border-radius: 4px;">
+            <p><strong>💡 觀念澄清：SEO 投毒（Organic）與 惡意廣告（Malvertising）的差別</strong></p>
+            <p>在許多社群討論中，這兩者常被混為一談。但從技術與防範角度來看，兩者屬於 MITRE ATT&CK 中不同的資源開發戰術（Resource Development）：</p>
+            <ul>
+                <li><strong>SEO 投毒（SEO Poisoning, T1608.006）</strong>：攻擊者操作搜尋引擎最佳化（SEO）演算法，使其惡意網頁提升至<strong>自然搜尋結果（Organic Results）</strong>前列。
+                    <ul>
+                        <li><strong>經典案例：Gootloader 惡意下載器</strong>。攻擊者入侵大量合法的 WordPress 網站，並塞入偽裝成法律合約或商業協議範本的網頁與關鍵字。當使用者在搜尋「transition services agreement」等商業範本時，被高排名的惡意論壇網頁吸引，下載了打包成 ZIP 的惡意 JavaScript 腳本，進而引發勒索軟體或 Cobalt Strike 感染鏈。</li>
+                    </ul>
+                </li>
+                <li><strong>惡意廣告（Malvertising, T1583.008）</strong>：攻擊者直接向廣告平台<strong>付費購買廣告（Paid Ads）</strong>，將連結置於搜尋結果最上方的「廣告」或「贊助商」版位。
+                    <ul>
+                        <li><strong>經典案例：KeePass / Rufus 偽冒下載廣告</strong>。攻擊者購買關鍵字廣告（如 "KeePass download"），排在官方網站上方。使用者點擊後會進入 1:1 克隆的偽造官網，下載被植入竊密軟體（如 RedLine, Vidar Stealer）的安裝檔。為了規避 Google 廣告平台的審查，攻擊者使用了「Cloaking（偽裝）」重導向技術，使審查爬蟲看到乾淨的頁面，一般使用者則被引導至惡意下載頁面。</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <p><span class="note-unverified">⚠️ 403</span> 代表該 URL 標題經 WebSearch 交叉確認存在，但 WebFetch 遭來源網站擋下（常見反爬蟲機制），未能逐字驗證內文，建議自行瀏覽器開啟核對。其餘連結皆已由 subagent 實際 WebFetch 開啟驗證。</p>
+
+        <table>
+            <thead>
+                <tr><th>案例／活動</th><th>投放手法</th><th>目標平台</th><th>來源</th><th>URL</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Gootloader 典型活動</td><td>SEO poisoning (鎖定 legal/contract 關鍵字)</td><td>Windows/macOS</td><td>Red Canary</td><td><a href="https://redcanary.com/threat-detection/gootloader/" target="_blank" rel="noopener">連結</a></td></tr>
+                <tr><td>KeePass 偽冒 Google Ads 詐騙</td><td>Malvertising (利用 Google 廣告 Cloaking 技術)</td><td>Windows/macOS</td><td>Malwarebytes</td><td><a href="https://www.malwarebytes.com/blog/news/2023/10/malvertising-via-google-ads-points-to-fake-keepass-website" target="_blank" rel="noopener">連結</a></td></tr>
+                <tr><td>InstallFix（假冒 Claude Code / NotebookLM 安裝頁）</td><td>Google Ads + 複製官方頁 + curl|bash</td><td>Windows/macOS</td><td>Push Security</td><td><a href="https://pushsecurity.com/blog/installfix" target="_blank" rel="noopener">連結</a></td></tr>
+                <tr><td>假冒 Claude Code Google Ads（Amatera/ACR Stealer）</td><td>SEO/Ads + 複製官方文件頁 + ClickFix</td><td>Windows/macOS</td><td>Bitdefender Labs</td><td><a href="https://www.bitdefender.com/en-us/blog/labs/fake-claude-code-google-ads-malware" target="_blank" rel="noopener">連結</a></td></tr>
+                <tr><td>Fake Claude Code Install Pages</td><td>克隆安裝頁 + base64 混淆指令</td><td>Windows/macOS</td><td>Malwarebytes</td><td><a href="https://www.malwarebytes.com/blog/news/2026/03/fake-claude-code-install-pages-hit-windows-and-mac-users-with-infostealers" target="_blank" rel="noopener">連結</a></td></tr>
+                <tr><td>MacSync Stealer 投放鏈</td><td>SEO poisoning + ClickFix</td><td>macOS</td><td>CloudSEK <span class="note-unverified">⚠️403</span></td><td><a href="https://www.cloudsek.com/blog/macsync-stealer-seo-poisoning-and-clickfix-based-macos-malware-delivery-chain" target="_blank" rel="noopener">連結</a></td></tr>
+                <tr><td>AI-Poisoning（假冒 ChatGPT/Grok 對話頁投放 AMOS）</td><td>SEO poisoning + 誘導貼上指令 + <code>dscl -authonly</code> 靜默驗密後 <code>sudo -S</code> 提權</td><td>macOS</td><td>Huntress</td><td><a href="https://www.huntress.com/blog/amos-stealer-chatgpt-grok-ai-trust" target="_blank" rel="noopener">連結</a></td></tr>
+                <tr><td>Google Ads + claude.ai 共享聊天投放 MacSync</td><td>Malvertising + share-link 信任濫用</td><td>macOS</td><td>CyberSecurityNews</td><td><a href="https://cybersecuritynews.com/macos-malware-leverages-google-ads/" target="_blank" rel="noopener">連結</a></td></tr>
+                <tr><td><strong>LLMShare</strong>：濫用 ChatGPT/Claude 分享功能做假故障頁</td><td>Share-link 信任濫用（chatgpt.com/claude.ai 為真實網域）</td><td>macOS/Windows</td><td>Push Security</td><td><a href="https://pushsecurity.com/blog/llmshare-malvertising-campaign" target="_blank" rel="noopener">連結</a></td></tr>
+                <tr><td>ChatGPT Share Links 假故障頁投放惡意程式</td><td>Share-link 濫用 + Google Ads 導流</td><td>macOS/Windows</td><td>BleepingComputer <span class="note-unverified">⚠️403</span></td><td><a href="https://www.bleepingcomputer.com/news/security/chatgpt-share-links-abused-to-host-fake-outage-pages-to-deliver-malware/" target="_blank" rel="noopener">連結</a></td></tr>
+                <tr><td>ClickFix 假冒 macOS 系統工具（三變體）</td><td>假工具頁 + 終端貼上指令，繞過 Gatekeeper</td><td>macOS</td><td>Microsoft Security Blog</td><td><a href="https://www.microsoft.com/en-us/security/blog/2026/05/06/clickfix-campaign-uses-fake-macos-utilities-lures-deliver-infostealers/" target="_blank" rel="noopener">連結</a></td></tr>
+                <tr><td>200+ 惡意 Google Ads 冒充 7-Zip/Notepad++/Final Cut Pro</td><td>Malvertising</td><td>macOS/Windows</td><td>Cybernews <span class="note-unverified">⚠️403</span></td><td><a href="https://cybernews.com/security/hackers-spread-mac-infostealer-using-google-ads/" target="_blank" rel="noopener">連結</a></td></tr>
+                <tr><td><strong>Trend Micro：Claude.ai Shared Chat 被濫用做 ClickFix Malvertising</strong></td><td>Share-link 濫用（直接對應本案）</td><td>macOS</td><td>Trend Micro <span class="note-unverified">⚠️403</span></td><td><a href="https://www.trendmicro.com/en_us/research/26/f/claudeai-shared-chat-abused-in-malvertising.html" target="_blank" rel="noopener">連結</a></td></tr>
+            </tbody>
+        </table>
+
+        <p><strong>補充確認</strong>：claude.ai / chatgpt.com 對話分享連結被拿來夾帶惡意指令，<strong>查有實證</strong>且是 2026 上半年新興手法群，非單一個案（見上表 LLMShare、Trend Micro、CyberSecurityNews 三方獨立報導）。</p>
+
+        <h4>macOS Infostealer 家族對照</h4>
+        <table>
+            <thead>
+                <tr><th>家族</th><th>行為特徵</th><th>來源</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>Atomic macOS Stealer (AMOS)</strong></td><td>用 Chainbreaker 解 Keychain、竊瀏覽器/錢包/Telegram，2025 年佔近 40% macOS 威脅偵測</td><td><a href="https://www.darktrace.com/blog/atomic-stealer-darktraces-investigation-of-a-growing-macos-threat" target="_blank" rel="noopener">Darktrace</a></td></tr>
+                <tr><td><strong>Poseidon Stealer</strong></td><td>AMOS 分支，AppleScript 執行，鎖定 100+ 瀏覽器擴充與多錢包</td><td><a href="https://redcanary.com/blog/threat-intelligence/atomic-odyssey-poseidon-stealers/" target="_blank" rel="noopener">Red Canary</a></td></tr>
+                <tr><td><strong>Odyssey Stealer</strong></td><td>Poseidon 重製版，加反沙箱與 botnet 能力</td><td><span class="note-unverified">⚠️搜尋結果標題確認，未 WebFetch</span></td></tr>
+                <tr><td><strong>Cthulhu Stealer</strong></td><td>Go 語言撰寫，Telegram MaaS 販售</td><td><a href="https://unit42.paloaltonetworks.com/macos-stealers-growing/" target="_blank" rel="noopener">Unit 42</a></td></tr>
+                <tr><td><strong>Banshee Stealer</strong></td><td>竊密碼/Cookie/自動填充/加密錢包/Notes，外洩至俄羅斯伺服器</td><td><a href="https://www.intego.com/mac-security-blog/mac-stealer-malware-market-surges-with-banshee-and-new-threat-actors/" target="_blank" rel="noopener">Intego</a></td></tr>
+            </tbody>
+        </table>
+
+        <p>這幾乎完全對上原貼文 Codex 分析出的三階段行為（下載腳本 → 蒐集 Keychain/SSH/AWS → 替換 Ledger/Trezor + 打包上傳）——案主極可能中的就是 <strong>Amatera/AMOS 家族的一支變體</strong>。</p>
+
+        <hr />
+
+        <h3>3. 使用者應注意事項 + 對應官方規範</h3>
+        <table>
+            <thead>
+                <tr><th>應注意事項</th><th>對應規範/標準</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Google 搜尋結果第一筆可能是付費廣告或 SEO 投毒，<strong>domain 合法不代表內容安全</strong></td><td>FBI IC3 PSA：<a href="https://www.ic3.gov/PSA/2026/PSA260618" target="_blank" rel="noopener">PSA260618</a>、<a href="https://www.ic3.gov/PSA/2022/PSA221221" target="_blank" rel="noopener">PSA221221</a></td></tr>
+                <tr><td>「假 AI/軟體廣告散布惡意軟體」已是官方消費者警示的獨立類別</td><td><a href="https://consumer.ftc.gov/consumer-alerts/2023/04/ads-fake-ai-other-software-spread-malicious-software" target="_blank" rel="noopener">FTC 消費者警示</a></td></tr>
+                <tr><td>不要對不明來源的 <code>curl | bash</code> 一鍵安裝指令照單全收，先解碼混淆內容再看</td><td><a href="https://www.cisa.gov/resources-tools/resources/defending-against-software-supply-chain-attacks" target="_blank" rel="noopener">CISA 供應鏈防禦</a></td></tr>
+                <tr><td>官方安裝管道要認明：Claude Code 目前為 <code>npm install -g @anthropic-ai/claude-code</code> 或 <code>curl -fsSL https://claude.ai/install.sh | bash</code>（有 GPG 簽章/checksum 驗證），<strong>不是</strong> share link 頁面上的臨時指令</td><td><a href="https://code.claude.com/docs/en/setup" target="_blank" rel="noopener">Claude Code 官方安裝文件</a></td></tr>
+                <tr><td>開發機上不要用 <code>sudo npm install -g</code>，也不要把重要憑證放在會被腳本讀到的位置</td><td>同上（官方文件明確警告）</td></tr>
+                <tr><td>事件發生後的正確處置：斷網、隔離、變更密碼、檢查登入裝置、確認 2FA——案主的反應完全對齊 IR 標準流程</td><td><a href="https://csrc.nist.gov/pubs/sp/800/61/r3/final" target="_blank" rel="noopener">NIST SP 800-61 Rev.3</a></td></tr>
+            </tbody>
+        </table>
+
+        <hr />
+
+        <h3>4. 對 vibe coding 使用者的防範柵欄</h3>
+        <p>觀念之外，可以現在就建的技術護欄：</p>
+
+        <h4>(1) 執行環境隔離</h4>
+        <ul>
+            <li>永遠不要在裝有正式憑證的工作機上執行不明來源的一鍵指令——用一台乾淨的 VM/Sandbox 機器或 disposable container 先跑</li>
+            <li>Claude Code 官方提供 sandbox 機制：檔案系統隔離 + 網路 egress 白名單，可降低 84% 權限詢問（<a href="https://www.anthropic.com/engineering/claude-code-sandboxing" target="_blank" rel="noopener">Anthropic Engineering</a>）</li>
+            <li>用 devcontainer 開發時，不要把 <code>~/.ssh</code> 等 host 端密鑰掛進去，並用 <code>init-firewall.sh</code> 限制 egress（<a href="https://code.claude.com/docs/en/devcontainer" target="_blank" rel="noopener">Claude Code Devcontainer 文件</a>）</li>
+        </ul>
+
+        <h4>(2) 指令執行前的強制檢查習慣</h4>
+        <ul>
+            <li>任何 <code>curl | bash</code>、<code>curl | sh</code> 型態的一鍵指令，先 <code>curl</code> 存檔看內容，不要直接 pipe 執行</li>
+            <li>看到 base64、hex 編碼的網址或 payload，先解碼再判斷（<code>echo xxx | base64 -d</code>）</li>
+            <li>貼上執行前先確認：這段指令是官方文件複製過去的，還是別人分享頁面上臨時出現的——本案的關鍵破口就是「share link 網域是真的，但指令內容是攻擊者塞的」</li>
+        </ul>
+
+        <h4>(3) 憑證與密鑰隔離</h4>
+        <ul>
+            <li>macOS Keychain、瀏覽器記住密碼盡量少用（案主本身這麼做，才讓損害有限）</li>
+            <li><code>~/.ssh</code>、<code>~/.aws</code>、<code>~/.kube</code> 等機敏配置檔，若非必要不要放在會被一般 AI agent / 腳本掃到的路徑，可考慮搬到需要額外解鎖的位置（如 1Password SSH agent、hardware key）</li>
+        </ul>
+
+        <h4>(4) AI Agent 層級的權限最小化</h4>
+        <ul>
+            <li>OWASP LLM Top 10 的 <strong>LLM06 Excessive Agency</strong>、OWASP Agentic Top 10 的 <strong>ASI03 身分與權限濫用</strong>都直接對應「AI agent 被誘導執行超出預期範圍的動作」——使用多個 MCP 工具鏈時，建議逐一檢視每個 MCP server 的權限範圍是否最小化（<a href="https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/" target="_blank" rel="noopener">OWASP Agentic Top 10 2026</a>）</li>
+            <li>案主事後才發現該主機還沒裝 Wazuh Agent——新機到貨當下第一件事應是先裝好 EDR/Agent，再裝其他工具，這是本案唯一真正的流程漏洞</li>
+        </ul>
+
+        <h4>(5) 網路層防護</h4>
+        <ul>
+            <li>原貼文提到 Avast Free for Mac 已能攔截第一、二階段惡意 script 下載——EDR/AV 不是萬靈丹但值得裝</li>
+            <li>DNS 層或防火牆層可考慮擋掉常見 infostealer C2 的已知惡意網域清單（配合既有的 opnsense/zenarmor/adguard）</li>
+        </ul>
+
+        <hr />
+
+        <div class="alert alert-warning">
+            <p><strong>查證誠實聲明</strong>：所有 MITRE ATT&amp;CK 連結與多數威脅情報 URL 已由 subagent 實際 WebFetch 開啟驗證；標註「⚠️403」的連結僅在搜尋引擎摘要中確認標題與存在性，未能開啟原文，建議自行瀏覽器核對後再引用到正式報告中。</p>
+        </div>
+    </div>
+
+    <script>
+        hljs.highlightAll();
+
+        const btn = document.getElementById("theme-btn");
+        btn.addEventListener("click", () => {
+            const currentTheme = document.documentElement.getAttribute("data-theme");
+            if (currentTheme === "dark") {
+                document.documentElement.removeAttribute("data-theme");
+                btn.textContent = "切換深色模式";
+            } else {
+                document.documentElement.setAttribute("data-theme", "dark");
+                btn.textContent = "切換淺色模式";
+            }
+        });
+
+        document.querySelectorAll('pre code.language-mermaid').forEach(el => {
+            const pre = el.parentElement;
+            const div = document.createElement('div');
+            div.className = 'mermaid';
+            div.textContent = el.textContent;
+            pre.replaceWith(div);
+        });
+    </script>
+</body>
+</html>

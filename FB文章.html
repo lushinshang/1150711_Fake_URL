@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>macOS Claude Code 惡意 SEO 詐騙案例分析報告</title>
+    <!-- Highlight.js for code block syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <!-- Mermaid.js for flowcharts -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+    <style>
+        :root {
+            --bg-color: #f9f7f4;
+            --text-color: #1a1a1a;
+            --primary-color: #0866FF;
+            --border-color: #e5e5e0;
+            --card-bg: #ffffff;
+            --code-bg: #f3f1eb;
+            --blockquote-bg: #f1f0ea;
+            --alert-important-bg: #ffe3de;
+            --alert-important-border: #dd2334;
+            --alert-important-text: #8d101b;
+            --alert-warning-bg: #fff3cd;
+            --alert-warning-border: #ffc107;
+            --alert-warning-text: #856404;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --primary-color: #3f8cff;
+            --border-color: #2c2c2c;
+            --card-bg: #1e1e1e;
+            --code-bg: #2d2d2d;
+            --blockquote-bg: #1e1e1a;
+            --alert-important-bg: #3c1e1e;
+            --alert-important-border: #dd2334;
+            --alert-important-text: #ff9b9b;
+            --alert-warning-bg: #332700;
+            --alert-warning-border: #ffc107;
+            --alert-warning-text: #ffe082;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+            line-height: 1.72;
+            font-size: 17px;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+
+        h1, h2, h3 {
+            text-wrap: balance;
+            color: var(--text-color);
+            font-weight: 700;
+            margin-top: 1.8em;
+            margin-bottom: 0.6em;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            line-height: 1.3;
+            margin-bottom: 0.8em;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            border-bottom: 1.5px solid var(--border-color);
+            padding-bottom: 0.4em;
+        }
+
+        h3 {
+            font-size: 1.25rem;
+        }
+
+        p {
+            margin-bottom: 1.5em;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        blockquote {
+            background-color: var(--blockquote-bg);
+            border-left: 4px solid var(--primary-color);
+            padding: 12px 20px;
+            margin: 24px 0;
+            border-radius: 0 6px 6px 0;
+            font-style: italic;
+        }
+
+        blockquote p {
+            margin: 0;
+        }
+
+        /* GitHub Alerts */
+        .alert {
+            padding: 16px 20px;
+            margin: 24px 0;
+            border-left: 4px solid;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .alert p {
+            margin: 0;
+        }
+
+        .alert-important {
+            background-color: var(--alert-important-bg);
+            border-left-color: var(--alert-important-border);
+            color: var(--alert-important-text);
+        }
+
+        .alert-warning {
+            background-color: var(--alert-warning-bg);
+            border-left-color: var(--alert-warning-border);
+            color: var(--alert-warning-text);
+        }
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(26, 26, 26, 0.95);
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            cursor: zoom-out;
+        }
+
+        .lightbox.is-open {
+            display: flex;
+        }
+
+        .lightbox img {
+            max-width: 96vw;
+            max-height: 92vh;
+            width: auto;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+            cursor: zoom-out;
+        }
+
+        .lightbox .lightbox-hint {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+
+        /* Images */
+        figure {
+            margin: 32px 0;
+            text-align: center;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            cursor: zoom-in;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        img:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 32px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 14px 18px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--code-bg);
+            font-weight: 700;
+        }
+
+        /* Code Blocks */
+        pre {
+            background-color: var(--code-bg);
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 24px 0;
+        }
+
+        code {
+            font-family: ui-monospace, Menlo, Consolas, Monaco, monospace;
+            font-size: 0.9em;
+        }
+
+        /* Inline Code */
+        p code, li code {
+            background-color: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* Mermaid Centering */
+        .mermaid {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            margin: 32px 0;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: center;
+        }
+
+        [data-theme="dark"] .mermaid {
+            filter: invert(0.9) hue-rotate(180deg);
+        }
+
+        /* Theme Switcher */
+        .theme-switch {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 100;
+            transition: all 0.2s;
+        }
+
+        .theme-switch:hover {
+            transform: scale(1.05);
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-bottom: 1.5em;
+            padding-left: 24px;
+        }
+
+        li {
+            margin-bottom: 0.5em;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            .container {
+                padding: 40px 16px;
+            }
+            h1 {
+                font-size: 1.75rem;
+            }
+            h2 {
+                font-size: 1.4rem;
+            }
+            body {
+                font-size: 16px;
+            }
+            .theme-switch {
+                top: auto;
+                bottom: 24px;
+                right: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-switch" id="theme-btn">切換深色模式</button>
+    
+    <div class="container">
+        <h1>7/10 macOS Claude Code 惡意 SEO 詐騙案例分析報告</h1>
+<h2>原始貼文資訊</h2>
+<ul>
+<li><strong>發文者</strong>：<a href="https://www.facebook.com/jason.cheng.9615">Jason Cheng</a></li>
+<li><strong>發文時間</strong>：2026 年 7 月 10 日 22:56</li>
+<li><strong>原始貼文連結</strong>：<a href="https://www.facebook.com/jason.cheng.9615/posts/pfbid0h4vByKUd3eKqqtcZK9wi9EcgH87eGocsUaN2fZ6xsUcZHzFnZcRGp4mbpXP5jBCJl">Facebook Post</a></li>
+</ul>
+<hr />
+<h2>1。 貼文本文</h2>
+<div class="alert alert-important"><p><strong>[7/10 資安案例分享，使用 mac 及 claude code 朋友請留意]</strong></p></div>
+
+<p>最近新購的 MacBook Air M5 剛到貨 （7/9），正在把需要的軟體裝的差不多了，剩下 Claude Code 還沒裝。</p>
+<p>結果事情大條。</p>
+<hr />
+<p>7/10 上午我先去 google 搜尋最新版 claude code 安裝指令，第一個結果看起來是 <code>claude.ai</code> 的 domain 沒錯（圖一），進去也有一行指令（圖二），忙碌中一時不察就在新機執行。..。 忽然感到不太對勁，瞄一眼網址怎麼是 base64 的，然後開始跳 macos 的 keychain 一直問我密碼！</p>
+<p>馬上警覺，立刻中止、關閉 WIFI、關機、進入 Recovery 完整抹除磁碟。至此，忽然覺得這兩天新機做環境都做白工了 = =</p>
+<hr />
+<p>從貼上指令執行到斷網與關機，總共過去約 40 秒。</p>
+<p>採用處理過的 claude chat 內容 share 出來這招，果然高。</p>
+<p>冷靜想了一下，以原本的平常用工作機回頭分析可能有那些問題：</p>
+<ul>
+<li><strong>#一</strong>：將該指令的 base64 解碼後網址送去 VirusTotal 檢測，尚未被發現出問題（圖三）。</li>
+<li><strong>#二</strong>：打開 Claude Code 請它以該指令模擬整個執行後以及又下載那些 payload 進行，結果分析快完成時 Claude 就因為資安政策打斷了。</li>
+<li><strong>#三</strong>：改用 Codex 接續分析。</li>
+<li><strong>#四</strong>：同時，用 Claude Desktop 接取我 <code>mcp_graylog</code>，從 log 中分析 opnsesne、zenarmor、adguard、等等記錄，確認下載兩次 payload 並上傳一次資料出去。</li>
+<li><strong>#五</strong>：接著搭配 <code>mcp_pve</code>、<code>mcp_wazuh</code>、<code>mcp_zimbra</code> 等等我寫的多個週邊系統 mcp 工具檢測，確認尚未發起橫向移動行為。</li>
+<li><strong>#六</strong>：該主機還沒安裝 Wazuh Agent，所以沒來得及記錄到本機行為。</li>
+<li><strong>#七</strong>：Codex 分析完成，確認分三個階段：執行 script、下載其它 script 執行並上傳搜集資料、下載另一支惡意程式並取得重點應用程式資料（其中包括 Ledger/Trezor 這兩個加密貨幣相關軟體甚至會替換成加料版）。</li>
+<li><strong>#八</strong>：它會嘗試偷本機密碼、Keychain 內所存的帳號密碼、主流瀏覽器帳號密碼記憶庫/Cookie/IndexedDB.。等、一堆系統維運與開發相關的配置檔（<code>~/</code> 裡面的 <code>.ssh</code>、<code>.aws</code>、<code>.kube</code>、<code>.zshrc</code>、<code>.zsh_history</code>、<code>.gitconfig</code> 等一堆）、Telegram 資料、<code>Desktop</code>/<code>Downloads</code>/<code>Documents</code> 資料夾內多種副檔名檔案（<code>.pdf</code>/<code>.docx</code>/<code>.key</code>/<code>.ovpn</code>/<code>.db</code>/<code>.txt</code>/<code>.kdbx</code> 等）。</li>
+</ul>
+<hr />
+<p>新機剛開始初始化配置無太多資料，且我儘量不用 macos 的 keychain 與瀏覽器記憶密碼，所以第一次那包出去的資料中應無重要系統資料，但為了保險起見，我仍然立刻檢視所有帳號隨即變更密碼、檢查登入裝置、確認 2FA。</p>
+<hr />
+<ul>
+<li><strong>註一</strong>：Codex 可以完整跑完所有分析，Claude 稍微看到可疑的東西就罷工不幹了。..。幹。（圖四）</li>
+<li><strong>註二</strong>：我剛剛看 （7/11） 這個搜尋結果依然還掛在第一筆。（圖五）</li>
+<li><strong>註三</strong>：在我的測試機驗證，Avast Free for Mac 版本已經可以攔下第一步、第二步的惡意 script 下載。</li>
+</ul>
+<hr />
+<h2>2。 貼文附圖</h2>
+<p>我們已經將貼文中的高解析度圖片下載至當前目錄的 <a href="file:///Users/lanss/projects/2_Practice/1150711_test2/FB文章_images">FB文章_images/</a> 資料夾下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">圖片名稱</th>
+<th style="text-align: left;">圖片預覽與說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>發文者頭像</strong></td>
+<td style="text-align: left;"><img alt="頭像" src="FB文章_images/avatar_1.jpg" /><br>發文者 Jason Cheng 的 Facebook 頭像</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>圖一：搜尋結果</strong></td>
+<td style="text-align: left;"><img alt="Google 搜尋結果" src="FB文章_images/post_photo_2.jpg" /><br>Google 搜尋結果第一筆（點進去網址是官方 domain <code>claude.ai</code>）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>圖二：安裝對話</strong></td>
+<td style="text-align: left;"><img alt="偽安裝對話網頁" src="FB文章_images/post_photo_3.jpg" /><br>偽裝成 Claude Code Mac 安裝步驟的 Share Link 對話頁面</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>圖三：偵測結果</strong></td>
+<td style="text-align: left;"><img alt="偵測結果" src="FB文章_images/post_photo_4.jpg" /><br>安全防護軟體檢測或分析結果</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>圖四：分析報表</strong></td>
+<td style="text-align: left;"><img alt="VirusTotal 檢測" src="FB文章_images/post_photo_5.jpg" /><br>對惡意 URL 的 VirusTotal 檢測或 Codex 分析報告畫面</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>圖五：仍掛在首位</strong></td>
+<td style="text-align: left;"><img alt="搜尋結果依然掛在第一筆" src="FB文章_images/post_photo_6.jpg" /><br>7/11 搜尋時該偽造頁面依舊排在 Google 第一筆</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>3。 社群留言與討論整理</h2>
+<p>以下是該貼文下方精選的網友技術討論與交流：</p>
+<ul>
+<li><strong>潘子澄</strong>：google 搜尋結果第一筆都要看的很小。</li>
+<li><strong>Brune Kz</strong>：要用 duckduckgo lite, brave, kagi search 一律不可以。要看它的 url 是不是有再包一層，再搭配 uBlock origin + Firefox。（已編輯）</li>
+<li><strong>網友 A</strong>：wow，這個有聰明，直接把對話 sharelink 去買廣告（或是做 SEO），這樣 domain 就不是假的。</li>
+<li><strong>網友 B</strong>：哇！這高招。不過我剛測試都回覆使用 <code>npm install</code>，沒看到 <code>curl</code>。</li>
+<li><strong>黃振慶</strong>：請問可以分享嗎？</li>
+<li><strong>Jason Cheng</strong>：已回覆。（已授權分享）</li>
+<li><strong>潘柏綸</strong>：他要被關起來解剖研究了……（遞手術刀）</li>
+<li><strong>Alex Lau</strong>：我為什麼要搞自己的 MoJoAssistant 就是預防這些問題，以後只會越來越隱蔽。</li>
+<li><strong>網友 C</strong>：你也中了……我是中 codex。</li>
+</ul>
+<hr />
+<h2>4。 攻擊手法深入剖析 （Security Analysis）</h2>
+<h3>攻擊流程圖 （Attack Flowchart）</h3>
+<pre><code class="language-mermaid">flowchart TD
+    A[攻擊者在 Claude.ai 建立對話] --&gt;|包裝惡意安裝指令| B[產生 Claude Share Link]
+    B --&gt;|透過 SEO Poisoning 提升排名| C(Google 搜尋結果第一筆)
+    U[使用者搜尋 Claude Code 安裝] --&gt;|信任 claude.ai 網域| C
+    C --&gt;|點擊進入並複製指令| D[於 macOS 終端機執行指令]
+    D --&gt;|第一階段| E[解密 Base64 網址並下載惡意腳本]
+    E --&gt;|第二階段| F[搜集 Keychain/SSH/AWS Key/瀏覽器資料]
+    F --&gt;|第三階段| G[替換加密錢包/竊取個人檔案並打包上傳]
+    G --&gt; H[攻擊者取得敏感憑證與資料]
+</code></pre>
+<blockquote>
+<p>💡 <strong>資安小學堂：SEO 投毒（Organic） vs. 惡意廣告（Malvertising）</strong><br/>
+很多網友留言提到「買廣告或做 SEO」，這兩者在技術上有精準的區分：<br/>
+• <strong>SEO 投毒 (SEO Poisoning)</strong>：操縱搜尋引擎演算法，提升惡意網頁在自然搜尋結果的排名（例如經典的 <strong>Gootloader</strong> 攻擊，入侵合法 WordPress 網站塞入法律範本，誘騙搜尋者下載惡意 JS 腳本）。<br/>
+• <strong>惡意廣告 (Malvertising)</strong>：直接付費購買 Google Ads 廣告版位，將偽冒網站置頂（例如經典的 <strong>KeePass / Rufus 偽冒廣告</strong>，用 Cloaking 偽裝技術規避審查，將點擊廣告的使用者導向 1:1 克隆的惡意官網下載竊密軟體）。<br/>
+本案中攻擊者極可能是雙管齊下，利用了這兩種管道來接觸受害者。</p>
+</blockquote>
+<h3>關鍵安全防禦指南</h3>
+<p>1。 <strong>檢查指令中的混淆代碼</strong>：在使用任何 <code>curl | sh</code> 的指令前，務必將其中的 <code>base64 -d</code> 或其他混淆內容解碼審查。
+2。 <strong>認明官方安裝管道</strong>：Claude Code 官方目前應使用 <code>npm install -g @anthropic-ai/claude-code</code> 來安裝，官方文檔網址為 <code>docs.anthropic.com</code>。切勿輕信 <code>claude.ai/share</code> 產生的對話分享網址作為安裝來源。
+3。 <strong>使用沙盒或測試機</strong>：在未確認指令安全前，應避免在存放重要憑證（如 SSH key, AWS key, Kubeconfig 等）的開發工作機上直接執行未經審查的網路指令。</p>
+    </div>
+
+    <!-- Lightbox Overlay -->
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-hint">點擊任意處或按 Esc 鍵關閉</span>
+        <img src="" alt="">
+    </div>
+
+    <script>
+        // Syntax highlighting init
+        hljs.highlightAll();
+
+        // Dark/Light Theme Switch
+        const btn = document.getElementById("theme-btn");
+        btn.addEventListener("click", () => {
+            const currentTheme = document.documentElement.getAttribute("data-theme");
+            if (currentTheme === "dark") {
+                document.documentElement.removeAttribute("data-theme");
+                btn.textContent = "切換深色模式";
+            } else {
+                document.documentElement.setAttribute("data-theme", "dark");
+                btn.textContent = "切換淺色模式";
+            }
+        });
+
+        // Convert Mermaid fenced code blocks into correct container
+        document.querySelectorAll('pre code.language-mermaid').forEach(el => {
+            const pre = el.parentElement;
+            const div = document.createElement('div');
+            div.className = 'mermaid';
+            div.textContent = el.textContent;
+            pre.replaceWith(div);
+        });
+
+        // Lightbox initialization
+        (function() {
+            const lightbox = document.getElementById("lightbox");
+            const lightboxImg = lightbox.querySelector("img");
+            
+            function openLightbox(img) {
+                lightboxImg.src = img.src;
+                lightboxImg.alt = img.alt;
+                lightbox.classList.add("is-open");
+            }
+            
+            function closeLightbox() {
+                lightbox.classList.remove("is-open");
+                lightboxImg.src = "";
+            }
+            
+            document.querySelectorAll(".container img").forEach(img => {
+                img.addEventListener("click", function() {
+                    openLightbox(img);
+                });
+            });
+            
+            lightbox.addEventListener("click", closeLightbox);
+            document.addEventListener("keydown", function(e) {
+                if (e.key === "Escape") closeLightbox();
+            });
+        })();
+    </script>
+</body>
+</html>
