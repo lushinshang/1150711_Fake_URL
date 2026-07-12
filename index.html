@@ -205,6 +205,76 @@
   .info-box ul{margin:0; padding-left:1.4em;}
   .info-box li{margin-bottom:8px;}
   .info-box li:last-child{margin-bottom:0;}
+
+  /* VS Card for SEO Poisoning vs Malvertising */
+  .vs-container {
+    display: flex;
+    gap: 20px;
+    margin: 28px 0;
+  }
+  .vs-card {
+    flex: 1;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    position: relative;
+    overflow: hidden;
+  }
+  .vs-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+  }
+  .vs-card.seo::before {
+    background: #10b981; /* Green for Organic SEO */
+  }
+  .vs-card.ad::before {
+    background: #3b82f6; /* Blue for Paid Ads */
+  }
+  .vs-card-title {
+    font-weight: 800;
+    font-size: 1.05rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .vs-card.seo .vs-card-title { color: #10b981; }
+  .vs-card.ad .vs-card-title { color: #3b82f6; }
+  .vs-card-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .vs-card.seo .vs-card-tag { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+  .vs-card.ad .vs-card-tag { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+  .vs-card ul {
+    margin: 0;
+    padding-left: 1.2em;
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+  .vs-card li { margin-bottom: 6px; }
+  .vs-card li:last-child { margin-bottom: 0; }
+  .vs-card-case {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+  .vs-card-case strong { color: var(--text); }
+  @media (max-width: 640px) {
+    .vs-container { flex-direction: column; gap: 16px; }
+  }
 </style>
 </head>
 <body>
@@ -251,6 +321,35 @@
   <p>把那段 Base64 解碼之後的網址送去 VirusTotal 檢測，結果是乾淨的。這不是防毒引擎失靈，而是攻擊者根本沒有偽造任何東西。</p>
   <p>傳統的釣魚攻擊仰賴假網域：把 <code>claude.ai</code> 拼成 <code>claude-ai.co</code> 或 <code>ciaude.ai</code>，靠視覺相似度矇混。這類手法有天生的破綻——網域信譽資料庫看得到、瀏覽器警告攔得住、使用者只要多看一眼網址列就能識破。但這起事件裡，網址列上寫的貨真價實就是 <code>claude.ai</code>。攻擊者用的不是偽造，而是<strong>借用</strong>：把一段包著惡意安裝指令的對話，用 Claude 官方的分享連結（Share Link）功能發布出去。網域是真的，伺服器是官方的，SSL 憑證正確無誤，唯獨對話內容是攻擊者自己編寫的。</p>
   <p>再往上一層看，這個分享連結能被搜尋到，靠的是 SEO 投毒（SEO Poisoning）與惡意廣告（Malvertising）——花錢買廣告或操作搜尋演算法，讓一個「看起來像官方安裝教學」的頁面擠進 Google 搜尋結果第一名，排在真正的官方文件前面。查證顯示，直到隔天，這個偽造頁面依然穩坐搜尋結果榜首。</p>
+
+  <div class="vs-container">
+    <div class="vs-card seo">
+      <div class="vs-card-title">🔍 SEO 投毒 (SEO Poisoning)</div>
+      <div class="vs-card-tag">演算法操縱 / 自然排名 (Organic)</div>
+      <ul>
+        <li><strong>運作機制</strong>：攻擊者不花錢，而是利用「黑帽 SEO」技術（如關鍵字堆砌、惡意反向連結、入侵高權重網站塞入寄生頁面），欺騙搜尋引擎演算法，提升惡意網頁在<strong>自然搜尋結果</strong>的排名。</li>
+        <li><strong>防禦痛點</strong>：生存期通常較長，防毒與安全瀏覽資料庫需要時間累積威脅情資才能將其標示為惡意。</li>
+      </ul>
+      <div class="vs-card-case">
+        <strong>真實案例：Gootloader 惡意下載鏈</strong><br>
+        入侵合法 WordPress 網站並生成偽造的法律或商業合約範本頁。當使用者搜尋「transition services agreement」等範本時，會進入高排名的惡意網頁並被誘導下載偽裝成合約的惡意 JavaScript 檔，最終引發勒索軟體感染。
+      </div>
+    </div>
+    
+    <div class="vs-card ad">
+      <div class="vs-card-title">📢 惡意廣告 (Malvertising)</div>
+      <div class="vs-card-tag">付費推廣 / 廣告版位 (Paid Ads)</div>
+      <ul>
+        <li><strong>運作機制</strong>：攻擊者直接<strong>付費給廣告平台 (如 Google Ads)</strong>，購買與熱門軟體相關的關鍵字，直接將惡意網址強行推送到搜尋結果最頂端的「贊助商」或「廣告」版位。</li>
+        <li><strong>防禦痛點</strong>：生效極快（數分鐘內即可曝光），並使用「Cloaking（網頁偽裝）」技術規避審查——對廣告審查爬蟲展示無害網頁，對真實使用者重導向至惡意頁面。</li>
+      </ul>
+      <div class="vs-card-case">
+        <strong>真實案例：KeePass / Rufus 偽冒下載廣告</strong><br>
+        在 Google 搜尋 "KeePass" 時，廣告版位首位出現仿冒官網。使用者點進去後，被 1:1 的仿真克隆頁面欺騙，下載了被打包進 RedLine/Vidar 竊密軟體（Info-stealer）的虛假安裝檔，導致瀏覽器與錢包憑證遭竊。
+      </div>
+    </div>
+  </div>
+
   <p>這暴露出現行資安防護模型的一個結構性死角：幾乎所有信任判斷都建立在「網域是否合法」這個單一維度上，無論是使用者的直覺、瀏覽器的憑證檢查，還是威脅情報系統的網域黑名單。但當攻擊者不再需要偽造網域，而是直接寄生在合法服務的使用者生成內容（分享連結、共享對話、公開協作頁面）裡，這套以網域為核心的信任模型就出現了系統性破口。2026 年上半年，多家獨立威脅情報廠商，分別記錄到幾乎相同的手法被用來冒充 Claude Code 與 ChatGPT 的分享頁面——這不是單一事件，而是一種被驗證有效、正在擴散的攻擊模式。</p>
 
   <h2 id="mechanism">一條指令背後的三段式劫持</h2>
