@@ -83,15 +83,15 @@
 ### 攻擊流程圖 （Attack Flowchart）
 ```mermaid
 flowchart TD
-    A[攻擊者在 Claude.ai 建立對話] -->|包裝惡意安裝指令| B[產生 Claude Share Link]
-    B -->|透過 SEO Poisoning (Organic) 提升排名| C(Google 搜尋結果第一筆 / 廣告版位)
-    B -->|購買 Google Ads 惡意廣告 (Paid Ad)| C
-    U[使用者搜尋 Claude Code 安裝] -->|信任 claude.ai 網域| C
-    C -->|點擊進入並複製指令| D[於 macOS 終端機執行指令]
-    D -->|第一階段| E[解密 Base64 網址並下載惡意腳本]
-    E -->|第二階段| F[搜集 Keychain/SSH/AWS Key/瀏覽器資料]
-    F -->|第三階段| G[替換加密錢包/竊取個人檔案並打包上傳]
-    G --> H[攻擊者取得敏感憑證與資料]
+    A["攻擊者在 Claude.ai 建立對話"] -->|"包裝惡意安裝指令"| B["產生 Claude Share Link"]
+    B -->|"透過 SEO Poisoning (Organic) 提升排名"| C("Google 搜尋結果第一筆 / 廣告版位")
+    B -->|"購買 Google Ads 惡意廣告 (Paid Ad)"| C
+    U["使用者搜尋安裝方式"] -->|"信任 claude.ai 網域"| C
+    C -->|"點擊進入並複製指令"| D["於 macOS 終端機執行指令"]
+    D -->|"第一階段"| E["解密 Base64 網址並下載惡意腳本"]
+    E -->|"第二階段"| F["搜集 Keychain/SSH/AWS Key/瀏覽器資料"]
+    F -->|"第三階段"| G["替換加密錢包/竊取個人檔案並打包上傳"]
+    G --> H["攻擊者取得敏感憑證與資料"]
 ```
 
 > 💡 **資安小學堂：SEO 投毒（Organic） vs. 惡意廣告（Malvertising）**
